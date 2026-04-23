@@ -1,0 +1,81 @@
+# autobattery base configuration
+
+model:
+  name: "metal_battery_pinn"
+  chemistry: "lmb"  # "lmb" or "nmb"
+  hidden_dim: 128
+  num_layers: 6
+  activation: "silu"
+  num_domain_heads: 3  # negative electrode / separator / positive electrode
+
+training:
+  forward:
+    num_epochs: 5000
+    learning_rate: 1.0e-3
+    scheduler: "cosine"
+    batch_size_collocation: 4096
+    batch_size_data: 512
+    lambda_pde: 1.0
+    lambda_data: 10.0
+    lambda_bc: 5.0
+    lambda_ic: 5.0
+  inverse:
+    num_epochs: 10000
+    learning_rate: 1.0e-3
+    scheduler: "cosine"
+    phase1_epochs: 5000  # Adam phase
+    phase2_epochs: 5000  # L-BFGS phase
+    lambda_pde: 1.0
+    lambda_data: 50.0
+    param_lr_scale: 0.1  # slower lr for physical parameters
+
+simulation:
+  num_samples: 10000
+  t_end: 3600  # seconds
+  num_time_points: 200
+  c_rates: [0.1, 0.2, 0.5, 1.0, 2.0, 5.0]
+  temperatures: [25.0]  # Celsius
+
+  parameter_sweep:
+    D_e:
+      min: 1.0e-11
+      max: 1.0e-9
+      distribution: "log_uniform"
+    D_s:
+      min: 1.0e-14
+      max: 1.0e-11
+      distribution: "log_uniform"
+    k0:
+      min: 1.0e-11
+      max: 1.0e-9
+      distribution: "log_uniform"
+    k_sei:
+      min: 1.0e-12
+      max: 1.0e-8
+      distribution: "log_uniform"
+    t_plus:
+      min: 0.2
+      max: 0.5
+      distribution: "uniform"
+    sigma_e:
+      min: 0.5
+      max: 2.0
+      distribution: "uniform"
+    R_sei_0:
+      min: 1.0e-3
+      max: 1.0e-1
+      distribution: "log_uniform"
+
+physics:
+  F: 96485.3329  # Faraday constant, C/mol
+  R: 8.314462618  # Gas constant, J/(mol·K)
+  T_ref: 298.15  # Reference temperature, K
+  alpha_a: 0.5  # Anodic transfer coefficient
+  alpha_c: 0.5  # Cathodic transfer coefficient
+
+logging:
+  use_wandb: false
+  project: "autobattery"
+  log_every: 50
+  save_every: 500
+  checkpoint_dir: "outputs/checkpoints"

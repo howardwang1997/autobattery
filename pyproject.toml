@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "autobattery"
+version = "0.1.0"
+description = "Physics-Informed Neural Network for Metal Battery Electrochemical Modeling"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.10"
+dependencies = [
+    "torch>=2.1",
+    "numpy>=1.24",
+    "scipy>=1.11",
+    "pandas>=2.0",
+    "pybamm>=24.5",
+    "pyyaml>=6.0",
+    "matplotlib>=3.7",
+    "tqdm>=4.65",
+    "wandb>=0.16",
+]
+
+[project.optional-dependencies]
+mlff = [
+    "fairchem-core>=2.8",
+    "mace-torch>=0.3",
+    "ase>=3.23",
+    "pymatgen>=2024.1",
+]
+dev = [
+    "pytest>=7.4",
+    "ruff>=0.1",
+    "ipython>=8.12",
+    "jupyter>=1.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*", "scripts*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

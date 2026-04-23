@@ -1,0 +1,46 @@
+# Lithium Metal Battery (LMB) configuration
+# Inherits from base.yaml, overrides chemistry-specific parameters
+
+model:
+  chemistry: "lmb"
+
+training:
+  inverse:
+    learnable_params:
+      D_e:
+        init: 2.5e-10
+        bounds: [1.0e-11, 1.0e-9]
+      D_s:
+        init: 1.0e-13
+        bounds: [1.0e-14, 1.0e-11]
+      k0:
+        init: 5.0e-11
+        bounds: [1.0e-11, 1.0e-9]
+      k_sei:
+        init: 1.0e-10
+        bounds: [1.0e-12, 1.0e-8]
+      t_plus:
+        init: 0.38
+        bounds: [0.2, 0.5]
+      R_sei_0:
+        init: 5.0e-3
+        bounds: [1.0e-3, 1.0e-1]
+
+simulation:
+  c_rates: [0.1, 0.2, 0.5, 1.0, 2.0]
+  temperatures: [25.0]
+  pybamm_params:
+    # Li metal anode
+    "Negative electrode thickness [m]": 20.0e-6
+    "Lithium metal plating kinetics [m.s-1]": 1.0e-9
+    # Cathode (generic, to be overridden by user)
+    "Positive electrode thickness [m]": 70.0e-6
+    "Positive particle radius [m]": 5.0e-6
+    "Maximum concentration in positive electrode [mol.m-3]": 51300
+    # Electrolyte
+    "Initial concentration in electrolyte [mol.m-3]": 1000
+    "Cation transference number": 0.38
+    # Cell
+    "Nominal cell capacity [A.h]": 3.0
+    "Lower voltage cut-off [V]": 2.5
+    "Upper voltage cut-off [V]": 4.2

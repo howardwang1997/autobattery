@@ -1,0 +1,17 @@
+FARADAY = 96485.3329  # C/mol
+GAS_CONSTANT = 8.314462618  # J/(mol·K)
+T_REF = 298.15  # K (25°C)
+
+ALPHA_A = 0.5
+ALPHA_C = 0.5
+
+BRUGGEMAN = 1.5
+
+LI_ION_RADIUS = 0.76e-10  # m
+NA_ION_RADIUS = 1.02e-10  # m
+
+LI_DENSITY = 534.0  # kg/m³
+NA_DENSITY = 968.0  # kg/m³
+
+LI_MOLAR_MASS = 6.941e-3  # kg/mol
+NA_MOLAR_MASS = 22.990e-3  # kg/mol
