@@ -782,3 +782,36 @@ Physical interpretation:
 - `scripts/31_rate_decomposition.py`: Rate-dependent decomposition attempt
 - `scripts/32_hierarchical_validation.py`: Hierarchical group + bootstrap
 - `scripts/33_neware_group_decomposition.py`: Group decomposition on NEWAREA
+
+### 5.8 Temporal-Constrained Decomposition (script 34, partial)
+
+Attempted joint temporal optimization across all cycles with:
+- Monotonicity: coefficients only grow
+- Smoothness: temporal regularity
+- Kinetic priors: SEI ~ √cycle, LAM ~ linear
+
+**Result**: WORSE than baseline (1/8 vs 3/8 PASS).
+- L-BFGS-B failed to converge in several scenarios (2000 iter limit)
+- Monotonicity constraint forces wrong modes to also grow monotonically
+- The penalty-based formulation struggles with the high correlation between modes
+
+**Diagnosis**: The issue is that per-cycle NNLS correctly identifies some modes on some cycles, but the monotonicity constraint forces ALL detected modes to grow monotonically across ALL cycles. This amplifies errors.
+
+**Planned fix**: Two-stage approach:
+1. Per-cycle NNLS to identify which modes are active
+2. Apply monotonicity only to consistently active modes
+
+### 5.9 Overall Assessment & Next Steps
+
+**Current best results**:
+- Group NNLS: 62% pass (5/8 scenarios)
+- Per-mode NNLS: 38% pass (3/8 scenarios)
+- SEI/LAM_pos/LAM_neg detection: 100%
+- R_mult detection: 0% (fundamental limit)
+
+**Key improvement plan** (see `docs/plan_improvement.md`):
+1. PyBaMM multi-cycle ground truth simulation → real ground truth validation
+2. ICA (dQ/dV) feature decomposition → may break R_mult vs D_n correlation
+3. Fix temporal-constrained decomposition → two-stage approach
+4. Multi-cell validation (NEWAREA/B/TVC) + ICA baseline comparison
+5. Paper repositioning: identifiability analysis as contribution
