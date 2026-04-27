@@ -10,11 +10,11 @@ model:
 
 training:
   forward:
-    num_epochs: 5000
+    num_epochs: 1000
     learning_rate: 1.0e-3
     scheduler: "cosine"
-    batch_size_collocation: 4096
-    batch_size_data: 512
+    batch_size_collocation: 256
+    batch_size_data: 256
     lambda_pde: 1.0
     lambda_data: 10.0
     lambda_bc: 5.0
@@ -37,31 +37,31 @@ simulation:
   temperatures: [25.0]  # Celsius
 
   parameter_sweep:
-    D_e:
-      min: 1.0e-11
-      max: 1.0e-9
+    "Negative particle diffusivity [m2.s-1]":
+      min: 1.0e-15
+      max: 1.0e-13
       distribution: "log_uniform"
-    D_s:
-      min: 1.0e-14
-      max: 1.0e-11
+    "Positive particle diffusivity [m2.s-1]":
+      min: 1.0e-15
+      max: 1.0e-12
       distribution: "log_uniform"
-    k0:
-      min: 1.0e-11
-      max: 1.0e-9
-      distribution: "log_uniform"
-    k_sei:
-      min: 1.0e-12
-      max: 1.0e-8
-      distribution: "log_uniform"
-    t_plus:
+    "Cation transference number":
       min: 0.2
       max: 0.5
       distribution: "uniform"
-    sigma_e:
-      min: 0.5
-      max: 2.0
-      distribution: "uniform"
-    R_sei_0:
+    "Positive electrode conductivity [S.m-1]":
+      min: 0.01
+      max: 10.0
+      distribution: "log_uniform"
+    "SEI kinetic rate constant [m.s-1]":
+      min: 1.0e-14
+      max: 1.0e-10
+      distribution: "log_uniform"
+    "Initial SEI thickness [m]":
+      min: 1.0e-09
+      max: 1.0e-06
+      distribution: "log_uniform"
+    "Positive electrode exchange-current density [A.m-2]":
       min: 1.0e-3
       max: 1.0e-1
       distribution: "log_uniform"
@@ -76,6 +76,6 @@ physics:
 logging:
   use_wandb: false
   project: "autobattery"
-  log_every: 50
-  save_every: 500
+  log_every: 10
+  save_every: 100
   checkpoint_dir: "outputs/checkpoints"

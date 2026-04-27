@@ -2,6 +2,9 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 from typing import Optional, Union
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class ExperimentalDataLoader:
@@ -115,6 +118,152 @@ class ExperimentalDataLoader:
 
         self._validate(result)
         return result
+
+    def load_neware_xlsx(
+        self,
+        path: Union[str, Path],
+        sheet_name: str = "record",
+    ) -> dict[str, np.ndarray]:
+        """
+        Load data from Neware Excel (.xlsx) format.
+        
+        Expected columns in 'record' sheet:
+        - 数据序号 (data index)
+        - 循环号 (cycle number)
+        - 工步号 (step number)
+        - 工步类型 (step type: 搁置/充电/放电)
+        - 时间 (step time)
+        - 总时间 (total time)
+        - 电流(A) (current)
+        - 电压(V) (voltage)
+        - 容量(Ah) (capacity)
+        - 能量(Wh) (energy)
+        
+        Returns:
+            dict with keys: 'time', 'voltage', 'current', 'capacity', 'cycle', 'step_type'
+        """
+        try:
+            import openpyxl
+        except ImportError:
+            raise ImportError("openpyxl is required to load xlsx files. Run: pip install openpyxl")
+
+        path = Path(path)
+        logger.info(f"Loading Neware xlsx from {path}, sheet '{sheet_name}'")
+        
+        wb = openpyxl.load_workbook(path, data_only=True)
+        ws = wb[sheet_name]
+        
+        rows = list(ws.iter_rows(values_only=True))
+        if len(rows) < 2:
+            raise ValueError(f"Sheet '{sheet_name}' has insufficient data")
+        
+        header = [str(v) if v is not None else "" for v in rows[0]]
+        logger.info(f"Columns: {header}")
+        
+        NEWARE_COLUMN_MAP = {
+            "数据序号": "data_idx",
+            "循环号": "cycle",
+            "工步号": "step",
+            "工步类型": "step_type",
+            "时间": "step_time",
+            "总时间": "time",
+            "电流(A)": "current",
+            "电压(V)": "voltage",
+            "容量(Ah)": "capacity",
+            "能量(Wh)": "energy",
+        }
+        
+        col_idx = {}
+        for col_name, key in NEWARE_COLUMN_MAP.items():
+            try:
+                idx = header.index(col_name)
+                col_idx[key] = idx
+            except ValueError:
+                pass
+        
+        required_cols = ["time", "voltage", "current"]
+        for col in required_cols:
+            if col not in col_idx:
+                raise ValueError(f"Required column '{col}' not found in sheet")
+        
+        data = {
+            "time": [],
+            "voltage": [],
+            "current": [],
+            "cycle": [],
+            "step": [],
+            "step_type": [],
+        }
+        
+        for row in rows[1:]:
+            if row is None:
+                continue
+            try:
+                time_val = row[col_idx["time"]]
+                voltage_val = row[col_idx["voltage"]]
+                current_val = row[col_idx["current"]]
+                
+                if time_val is None or voltage_val is None or current_val is None:
+                    continue
+                
+                data["time"].append(self._parse_time_to_seconds(time_val))
+                data["voltage"].append(float(voltage_val))
+                data["current"].append(float(current_val))
+                
+                if "cycle" in col_idx:
+                    data["cycle"].append(int(row[col_idx["cycle"]]) if row[col_idx["cycle"]] is not None else 0)
+                else:
+                    data["cycle"].append(0)
+                    
+                if "step" in col_idx:
+                    data["step"].append(int(row[col_idx["step"]]) if row[col_idx["step"]] is not None else 0)
+                else:
+                    data["step"].append(0)
+                    
+                if "step_type" in col_idx:
+                    data["step_type"].append(str(row[col_idx["step_type"]]) if row[col_idx["step_type"]] is not None else "")
+                else:
+                    data["step_type"].append("")
+                    
+            except (ValueError, TypeError, IndexError):
+                continue
+        
+        result = {k: np.array(v, dtype=np.float64) for k, v in data.items() if k in ["time", "voltage", "current", "cycle", "step"]}
+        
+        if "step_type" in data:
+            result["step_type"] = data["step_type"]
+        
+        wb.close()
+        
+        logger.info(f"Loaded {len(result['time'])} data points")
+        
+        self._validate(result)
+        return result
+
+    @staticmethod
+    def _parse_time_to_seconds(time_str) -> float:
+        """Parse time string to seconds. Supports: 'HH:MM:SS', seconds float."""
+        if time_str is None:
+            return 0.0
+        
+        if isinstance(time_str, (int, float)):
+            return float(time_str)
+        
+        time_str = str(time_str).strip()
+        
+        if ":" in time_str:
+            parts = time_str.split(":")
+            if len(parts) == 3:
+                h, m, s = parts
+                return int(h) * 3600 + int(m) * 60 + float(s)
+            elif len(parts) == 2:
+                m, s = parts
+                return int(m) * 60 + float(s)
+        
+        try:
+            return float(time_str)
+        except ValueError:
+            return 0.0
 
     def _find_column(self, key: str, columns) -> Optional[str]:
         """Auto-detect column name from aliases."""

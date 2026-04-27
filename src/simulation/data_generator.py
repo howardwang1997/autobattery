@@ -12,17 +12,12 @@ from .parameters import parse_sweep_params, load_config
 logger = logging.getLogger(__name__)
 
 
-def _run_single_simulation(
-    param_dict: dict,
-    battery_model: MetalBatteryDFN,
-    c_rate: float,
-    temperature: float,
-    t_end: float,
-    n_points: int,
-) -> dict:
-    """Run a single simulation with given parameter overrides."""
-    params = battery_model.build_parameter_set(param_dict)
+def _run_single_simulation(args: tuple) -> dict:
+    """Run a single simulation with given parameter overrides (for multiprocessing)."""
+    param_dict, chemistry, c_rate, temperature, t_end, n_points = args
+    battery_model = MetalBatteryDFN(chemistry=chemistry)
     solver = PybammSolver(battery_model)
+    params = battery_model.build_parameter_set(param_dict)
     return solver.solve(params, c_rate, temperature, t_end, n_points)
 
 
@@ -50,16 +45,6 @@ class SyntheticDataGenerator:
         self.num_samples = sim_cfg.get("num_samples", 10000)
 
     def generate(self, num_workers: int = 1, seed: int = 42) -> Path:
-        """
-        Generate synthetic dataset.
-
-        Args:
-            num_workers: Number of parallel processes (1 = sequential).
-            seed: Random seed for reproducibility.
-
-        Returns:
-            Path to the saved .npz file.
-        """
         rng = np.random.default_rng(seed)
 
         param_samples = []
@@ -69,41 +54,71 @@ class SyntheticDataGenerator:
                 sample[p.name] = p.sample(rng)
             param_samples.append(sample)
 
-        all_results = []
-        total = len(param_samples) * len(self.c_rates) * len(self.temperatures)
-        logger.info(f"Generating {total} simulations...")
-
-        run_fn = partial(
-            _run_single_simulation,
-            battery_model=self.battery_model,
-            t_end=self.t_end,
-            n_points=self.n_points,
-        )
-
-        count = 0
+        tasks = []
         for i, param_dict in enumerate(param_samples):
             for c_rate in self.c_rates:
                 for temp in self.temperatures:
-                    result = run_fn(
-                        param_dict=param_dict,
-                        c_rate=c_rate,
-                        temperature=temp,
-                    )
+                    tasks.append((
+                        param_dict, self.chemistry,
+                        c_rate, temp, self.t_end, self.n_points,
+                    ))
+
+        total = len(tasks)
+        logger.info(f"Generating {total} simulations with {num_workers} workers...")
+
+        all_results = []
+        count = 0
+        failed = 0
+
+        if num_workers > 1:
+            from multiprocessing import Pool
+            chunk = max(1, total // (num_workers * 4))
+            with Pool(num_workers) as pool:
+                for idx, result in enumerate(pool.imap_unordered(_run_single_simulation, tasks, chunksize=chunk)):
                     if result is not None:
+                        i = tasks[idx][0] if isinstance(tasks[idx], tuple) else 0
                         all_results.append({
                             "index": count,
-                            "param_sample_idx": i,
-                            "c_rate": c_rate,
-                            "temperature": temp,
+                            "c_rate": result.get("c_rate", 0),
+                            "temperature": result.get("temperature", 25),
                             "time": result["time"],
                             "voltage": result["voltage"],
                             "current": result["current"],
-                            "params": param_dict,
+                            "params": tasks[idx][0],
                         })
                         count += 1
+                    else:
+                        failed += 1
 
-                    if (count + 1) % 100 == 0:
-                        logger.info(f"  Completed {count + 1}/{total}")
+                    done = count + failed
+                    if done % 100 == 0:
+                        logger.info(f"  {done}/{total} (ok={count}, fail={failed})")
+                        self._save(all_results)
+        else:
+            for idx, task in enumerate(tasks):
+                try:
+                    result = _run_single_simulation(task)
+                except Exception as e:
+                    logger.debug(f"  Simulation failed: {e}")
+                    result = None
+                    failed += 1
+
+                if result is not None:
+                    all_results.append({
+                        "index": count,
+                        "c_rate": result.get("c_rate", 0),
+                        "temperature": result.get("temperature", 25),
+                        "time": result["time"],
+                        "voltage": result["voltage"],
+                        "current": result["current"],
+                        "params": task[0],
+                    })
+                    count += 1
+
+                done = count + failed
+                if done % 50 == 0:
+                    logger.info(f"  {done}/{total} (ok={count}, fail={failed})")
+                    self._save(all_results)
 
         self._save(all_results)
         output_path = self.output_dir / f"synthetic_{self.chemistry}.npz"

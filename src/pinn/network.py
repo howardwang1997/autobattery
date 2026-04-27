@@ -213,6 +213,123 @@ class MultiDomainPINN(nn.Module):
         return result["V"]
 
 
+class VoltageMLP(nn.Module):
+    """
+    Simple MLP for voltage prediction: (t, params) -> V(t).
+
+    Used in Phase 0 for pure data fitting baseline.
+    Much simpler and faster to train than the full MultiDomainPINN.
+    """
+
+    def __init__(
+        self,
+        num_params: int = 7,
+        hidden_dim: int = 256,
+        num_layers: int = 4,
+        activation: str = "silu",
+    ):
+        super().__init__()
+        self.num_params = num_params
+
+        input_dim = 1 + num_params  # t + params
+        layers = [FullyConnectedBlock(input_dim, hidden_dim, activation)]
+        for _ in range(num_layers - 1):
+            layers.append(FullyConnectedBlock(hidden_dim, hidden_dim, activation))
+        self.encoder = nn.Sequential(*layers)
+        self.head = nn.Linear(hidden_dim, 1)
+
+        self._init_weights()
+
+    def _init_weights(self):
+        for m in self.modules():
+            if isinstance(m, nn.Linear):
+                nn.init.xavier_normal_(m.weight, gain=0.5)
+                if m.bias is not None:
+                    nn.init.zeros_(m.bias)
+
+    def forward(self, t: torch.Tensor, params: torch.Tensor) -> torch.Tensor:
+        """
+        Args:
+            t: (B, 1) normalized time
+            params: (B, N) normalized parameters
+        Returns:
+            v: (B, 1) predicted voltage (normalized)
+        """
+        inp = torch.cat([t, params], dim=-1)
+        features = self.encoder(inp)
+        return self.head(features)
+
+
+class VoltagePredictor(nn.Module):
+    """
+    Two-stage voltage predictor for surrogate modeling.
+
+    Factorizes V(t, params) into:
+      V(t, params) = V_shape(t, params) * scale(params) + offset(params)
+
+    - V_shape: normalized voltage curve shape, trained with per-sim normalization
+    - offset(params): predicts per-simulation mean voltage
+    - scale(params): predicts per-simulation voltage spread
+    """
+
+    def __init__(
+        self,
+        num_params: int = 7,
+        hidden_dim: int = 256,
+        num_layers: int = 4,
+        activation: str = "silu",
+    ):
+        super().__init__()
+        self.num_params = num_params
+
+        input_dim = 1 + num_params
+        layers = [FullyConnectedBlock(input_dim, hidden_dim, activation)]
+        for _ in range(num_layers - 1):
+            layers.append(FullyConnectedBlock(hidden_dim, hidden_dim, activation))
+        self.shape_encoder = nn.Sequential(*layers)
+        self.shape_head = nn.Linear(hidden_dim, 1)
+
+        param_input = num_params
+        self.offset_net = nn.Sequential(
+            FullyConnectedBlock(param_input, hidden_dim // 2, activation),
+            FullyConnectedBlock(hidden_dim // 2, hidden_dim // 4, activation),
+            nn.Linear(hidden_dim // 4, 1),
+        )
+        self.scale_net = nn.Sequential(
+            FullyConnectedBlock(param_input, hidden_dim // 2, activation),
+            FullyConnectedBlock(hidden_dim // 2, hidden_dim // 4, activation),
+            nn.Linear(hidden_dim // 4, 1),
+            nn.Softplus(),
+        )
+
+        self._init_weights()
+
+    def _init_weights(self):
+        for m in self.modules():
+            if isinstance(m, nn.Linear):
+                nn.init.xavier_normal_(m.weight, gain=0.5)
+                if m.bias is not None:
+                    nn.init.zeros_(m.bias)
+
+    def forward_shape(self, t: torch.Tensor, params: torch.Tensor) -> torch.Tensor:
+        inp = torch.cat([t, params], dim=-1)
+        return self.shape_head(self.shape_encoder(inp))
+
+    def forward_offset(self, params: torch.Tensor) -> torch.Tensor:
+        return self.offset_net(params)
+
+    def forward_scale(self, params: torch.Tensor) -> torch.Tensor:
+        return self.scale_net(params)
+
+    def forward(self, t: torch.Tensor, params: torch.Tensor) -> torch.Tensor:
+        """Full prediction: V(t, params) = shape * scale + offset"""
+        v_shape = self.forward_shape(t, params)
+        params_unique = params[:, :self.num_params].mean(dim=0, keepdim=True).expand(params.shape[0], -1)
+        scale = self.forward_scale(params_unique)
+        offset = self.forward_offset(params_unique)
+        return v_shape * scale + offset
+
+
 class InversePINN(nn.Module):
     """
     PINN for inverse problems: identifies physical parameters from data.
