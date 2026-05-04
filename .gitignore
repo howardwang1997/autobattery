@@ -215,5 +215,6 @@ configs/local.yaml
 *.pt
 wandb/
 outputs/
+logs/
 runs/
 docs/_build/

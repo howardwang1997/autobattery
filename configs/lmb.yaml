@@ -1,46 +1,117 @@
-# Lithium Metal Battery (LMB) configuration
-# Inherits from base.yaml, overrides chemistry-specific parameters
+# Lithium Metal Battery (LMB) configuration.
+# Inherits from base.yaml and overrides chemistry-specific parameters.
+#
+# Phase A2 update: switched to OKane2022 parameter set + lithium plating
+# enabled ("partially reversible"), so the synthetic data the surrogate
+# trains on actually contains LMB-specific physics (dead Li, SEI growth,
+# porosity collapse) instead of vanilla Li-ion DFN.
 
 model:
   chemistry: "lmb"
+  mode: "plating_dominant"            # plating_dominant | intercalation
+  parameter_set: "OKane2022"
 
 training:
   inverse:
     learnable_params:
-      D_e:
+      # Electrolyte transport
+      "Electrolyte diffusivity [m2.s-1]":
         init: 2.5e-10
         bounds: [1.0e-11, 1.0e-9]
-      D_s:
-        init: 1.0e-13
-        bounds: [1.0e-14, 1.0e-11]
-      k0:
-        init: 5.0e-11
-        bounds: [1.0e-11, 1.0e-9]
-      k_sei:
-        init: 1.0e-10
-        bounds: [1.0e-12, 1.0e-8]
-      t_plus:
-        init: 0.38
-        bounds: [0.2, 0.5]
-      R_sei_0:
-        init: 5.0e-3
-        bounds: [1.0e-3, 1.0e-1]
+        log_scale: true
+      "Cation transference number":
+        init: 0.28
+        bounds: [0.18, 0.45]
+        log_scale: false
+      # Cathode kinetics
+      "Positive particle diffusivity [m2.s-1]":
+        init: 4.0e-15
+        bounds: [1.0e-16, 1.0e-13]
+        log_scale: true
+      "Positive electrode exchange-current density [A.m-2]":
+        init: 1.0e-2
+        bounds: [1.0e-4, 1.0e0]
+        log_scale: true
+      # Lithium plating + SEI (the main LMB knobs)
+      "Lithium plating kinetic rate constant [m.s-1]":
+        init: 1.0e-9
+        bounds: [1.0e-12, 1.0e-7]
+        log_scale: true
+      "Dead lithium decay constant [s-1]":
+        init: 1.0e-6
+        bounds: [1.0e-9, 1.0e-3]
+        log_scale: true
+      "SEI kinetic rate constant [m.s-1]":
+        init: 1.0e-12
+        bounds: [1.0e-14, 1.0e-9]
+        log_scale: true
+      "Initial inner SEI thickness [m]":
+        init: 2.5e-9
+        bounds: [1.0e-10, 1.0e-7]
+        log_scale: true
+      "EC initial concentration in electrolyte [mol.m-3]":
+        init: 4541
+        bounds: [1000, 6000]
+        log_scale: false
 
 simulation:
+  num_samples: 5000                   # per C-rate; multiplied by len(c_rates)
   c_rates: [0.1, 0.2, 0.5, 1.0, 2.0]
   temperatures: [25.0]
-  pybamm_params:
-    # Li metal anode
-    "Negative electrode thickness [m]": 20.0e-6
-    "Lithium metal plating kinetics [m.s-1]": 1.0e-9
-    # Cathode (generic, to be overridden by user)
-    "Positive electrode thickness [m]": 70.0e-6
-    "Positive particle radius [m]": 5.0e-6
-    "Maximum concentration in positive electrode [mol.m-3]": 51300
-    # Electrolyte
-    "Initial concentration in electrolyte [mol.m-3]": 1000
-    "Cation transference number": 0.38
-    # Cell
-    "Nominal cell capacity [A.h]": 3.0
-    "Lower voltage cut-off [V]": 2.5
-    "Upper voltage cut-off [V]": 4.2
+  t_end: 7200
+  num_time_points: 200
+  pybamm_options:
+    lithium_plating: "partially reversible"
+    SEI: "ec reaction limited"
+    SEI_porosity_change: "true"
+
+  parameter_sweep:
+    "Electrolyte diffusivity [m2.s-1]":
+      min: 1.0e-11
+      max: 1.0e-9
+      distribution: "log_uniform"
+    "Positive particle diffusivity [m2.s-1]":
+      min: 1.0e-16
+      max: 1.0e-13
+      distribution: "log_uniform"
+    "Cation transference number":
+      min: 0.20
+      max: 0.45
+      distribution: "uniform"
+    "Lithium plating kinetic rate constant [m.s-1]":
+      min: 1.0e-12
+      max: 1.0e-7
+      distribution: "log_uniform"
+    "Dead lithium decay constant [s-1]":
+      min: 1.0e-9
+      max: 1.0e-3
+      distribution: "log_uniform"
+    "SEI kinetic rate constant [m.s-1]":
+      min: 1.0e-14
+      max: 1.0e-10
+      distribution: "log_uniform"
+    "Initial inner SEI thickness [m]":
+      min: 1.0e-10
+      max: 1.0e-7
+      distribution: "log_uniform"
+    "Positive electrode exchange-current density [A.m-2]":
+      min: 1.0e-4
+      max: 1.0e0
+      distribution: "log_uniform"
+
+# Cycle-level signature library generation. Used by
+# scripts/32_signature_library_lmb.py to produce the (n_param, n_time)
+# differential-voltage signatures consumed by src/diagnosis/dv_signature.py.
+signature_library:
+  c_rate: 1.0
+  n_time: 200
+  ridge_alpha: 0.1
+  bootstrap_samples: 200
+  log_scale_params:
+    - "Electrolyte diffusivity [m2.s-1]"
+    - "Positive particle diffusivity [m2.s-1]"
+    - "Lithium plating kinetic rate constant [m.s-1]"
+    - "Dead lithium decay constant [s-1]"
+    - "SEI kinetic rate constant [m.s-1]"
+    - "Initial inner SEI thickness [m]"
+    - "Positive electrode exchange-current density [A.m-2]"
