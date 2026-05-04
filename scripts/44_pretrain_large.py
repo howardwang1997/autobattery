@@ -1,10 +1,10 @@
-"""Pretrain Battery Foundation Model on multi-chemistry data.
+"""Pretrain Large Battery Foundation Model on v2 multi-chemistry data.
 
-Usage (single GPU):
-    python scripts/41_pretrain_foundation.py
+2-GPU DDP on H20:
+    torchrun --nproc_per_node=2 scripts/44_pretrain_large.py
 
-Usage (2-GPU DDP):
-    torchrun --nproc_per_node=2 scripts/41_pretrain_foundation.py
+Single GPU fallback:
+    python scripts/44_pretrain_large.py
 """
 
 import os
@@ -72,11 +72,9 @@ def train(args):
         logger.info(f"Device: {device}, DDP: {ddp}, World size: {world_size}")
         logger.info(f"GPU: {torch.cuda.get_device_name(local_rank)}")
 
-    import sys
-    sys.path.insert(0, ".")
     from src.foundation.data.dataset import MultiChemDataset
     from src.foundation.model.transformer import (
-        BatteryTransformer, BatteryTransformerSmall, BatteryTransformerLarge, count_parameters,
+        BatteryTransformerSmall, BatteryTransformer, BatteryTransformerLarge, count_parameters,
     )
 
     model_cls = {
@@ -97,24 +95,28 @@ def train(args):
     train_ds = MultiChemDataset(args.data_path, split="train")
     val_ds = MultiChemDataset(args.data_path, split="val")
 
+    bs = args.batch_size
     if ddp:
         train_sampler = DistributedSampler(train_ds, num_replicas=world_size, rank=rank, shuffle=True)
-        train_loader = DataLoader(train_ds, batch_size=args.batch_size, sampler=train_sampler,
-                                   num_workers=0, pin_memory=True, drop_last=True)
+        train_loader = DataLoader(train_ds, batch_size=bs, sampler=train_sampler,
+                                   num_workers=4, pin_memory=True, drop_last=True, persistent_workers=True)
     else:
-        train_loader = DataLoader(train_ds, batch_size=args.batch_size, shuffle=True,
-                                   num_workers=0, pin_memory=True, drop_last=True)
-    val_loader = DataLoader(val_ds, batch_size=args.batch_size, shuffle=False,
-                             num_workers=0, pin_memory=True)
+        train_loader = DataLoader(train_ds, batch_size=bs, shuffle=True,
+                                   num_workers=4, pin_memory=True, drop_last=True, persistent_workers=True)
+    val_loader = DataLoader(val_ds, batch_size=bs, shuffle=False,
+                             num_workers=4, pin_memory=True, persistent_workers=True)
 
     if rank == 0:
         logger.info(f"Train: {len(train_ds)}, Val: {len(val_ds)}, "
-                     f"Batches/epoch: {len(train_loader)}")
+                     f"Batches/epoch: {len(train_loader)}, BS: {bs}")
 
-    optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=0.01)
+    optimizer = torch.optim.AdamW(
+        model.parameters(), lr=args.lr, weight_decay=0.05,
+        betas=(0.9, 0.95),
+    )
     total_steps = len(train_loader) * args.epochs
-    scheduler = CosineWarmupScheduler(optimizer, warmup_steps=min(1000, total_steps // 5),
-                                        total_steps=total_steps)
+    warmup = min(2000, total_steps // 10)
+    scheduler = CosineWarmupScheduler(optimizer, warmup_steps=warmup, total_steps=total_steps)
 
     loss_fn = nn.SmoothL1Loss()
     output_dir = Path(args.output_dir)
@@ -122,6 +124,9 @@ def train(args):
 
     best_val_loss = float("inf")
     history = []
+
+    if rank == 0:
+        logger.info(f"Total steps: {total_steps}, Warmup: {warmup}, LR: {args.lr}")
 
     for epoch in range(args.epochs):
         if ddp:
@@ -133,20 +138,21 @@ def train(args):
         t0 = time.time()
 
         for batch in train_loader:
-            V = batch["V"].to(device)
-            chem = batch["chem_id"].to(device)
-            params = batch["params"].to(device)
-            cond = batch["conditions"].to(device)
+            V = batch["V"].to(device, non_blocking=True)
+            chem = batch["chem_id"].to(device, non_blocking=True)
+            params = batch["params"].to(device, non_blocking=True)
+            cond = batch["conditions"].to(device, non_blocking=True)
 
             cond_norm = torch.cat([cond[:, 0:1] / 3.0, (cond[:, 1:2] - 273.15) / 50.0], dim=-1)
 
-            V_pred = (model.module if ddp else model)(chem, params, cond_norm, targets=V)
+            m = model.module if ddp else model
+            V_pred = m(chem, params, cond_norm, targets=V)
 
             loss = loss_fn(V_pred, V)
 
-            optimizer.zero_grad()
+            optimizer.zero_grad(set_to_none=True)
             loss.backward()
-            torch.nn.utils.clip_grad_norm_(model.parameters(), 0.5)
+            torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
             optimizer.step()
             global_step = epoch * len(train_loader) + n_batches
             scheduler.step(global_step)
@@ -163,13 +169,14 @@ def train(args):
             model.eval()
             with torch.no_grad():
                 for batch in val_loader:
-                    V = batch["V"].to(device)
-                    chem = batch["chem_id"].to(device)
-                    params = batch["params"].to(device)
-                    cond = batch["conditions"].to(device)
+                    V = batch["V"].to(device, non_blocking=True)
+                    chem = batch["chem_id"].to(device, non_blocking=True)
+                    params = batch["params"].to(device, non_blocking=True)
+                    cond = batch["conditions"].to(device, non_blocking=True)
                     cond_norm = torch.cat([cond[:, 0:1] / 3.0, (cond[:, 1:2] - 273.15) / 50.0], dim=-1)
 
-                    V_pred = (model.module if ddp else model)(chem, params, cond_norm, targets=V)
+                    m = model.module if ddp else model
+                    V_pred = m(chem, params, cond_norm, targets=V)
                     val_loss += loss_fn(V_pred, V).item()
                     n_val += 1
 
@@ -179,10 +186,10 @@ def train(args):
             train_rmse_mV = np.sqrt(avg_loss) * v_range * 1000
             val_rmse_mV = np.sqrt(val_loss) * v_range * 1000
 
+            samples_per_sec = len(train_loader.dataset) / elapsed
             logger.info(f"Epoch {epoch+1}/{args.epochs}: "
-                        f"train_loss={avg_loss:.5f} ({train_rmse_mV:.1f}mV) "
-                        f"val_loss={val_loss:.5f} ({val_rmse_mV:.1f}mV) "
-                        f"time={elapsed:.1f}s lr={optimizer.param_groups[0]['lr']:.2e}")
+                        f"train={train_rmse_mV:.1f}mV val={val_rmse_mV:.1f}mV "
+                        f"{elapsed:.1f}s {samples_per_sec:.0f}sa/s lr={optimizer.param_groups[0]['lr']:.2e}")
 
             history.append({
                 "epoch": epoch,
@@ -204,8 +211,9 @@ def train(args):
                     "val_rmse_mV": val_rmse_mV,
                     "n_params": n_params,
                     "model_size": args.model_size,
+                    "data_path": args.data_path,
                 }, output_dir / "bfom_best.pt")
-                logger.info(f"  Saved best model (val_rmse={val_rmse_mV:.1f}mV)")
+                logger.info(f"  -> New best: {val_rmse_mV:.1f}mV")
 
             if (epoch + 1) % args.save_every == 0:
                 state_dict = model.module.state_dict() if ddp else model.state_dict()
@@ -213,12 +221,13 @@ def train(args):
                     "epoch": epoch,
                     "model_state_dict": state_dict,
                     "val_loss": val_loss,
+                    "val_rmse_mV": val_rmse_mV,
                 }, output_dir / f"bfom_epoch{epoch+1}.pt")
 
     if rank == 0:
         with open(output_dir / "training_history.json", "w") as f:
             json.dump(history, f, indent=2)
-        logger.info(f"Training complete. Best val loss: {best_val_loss:.5f}")
+        logger.info(f"Done. Best val: {best_val_loss:.5f}")
         logger.info(f"Saved to {output_dir}")
 
     cleanup_ddp(ddp)
@@ -226,13 +235,13 @@ def train(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--data-path", type=str, default="data/foundation/multichem_train.h5")
-    parser.add_argument("--output-dir", type=str, default="outputs/checkpoints_bfom")
-    parser.add_argument("--model-size", type=str, default="base",
+    parser.add_argument("--data-path", type=str, default="data/foundation/multichem_v2.h5")
+    parser.add_argument("--output-dir", type=str, default="outputs/checkpoints_bfom_large")
+    parser.add_argument("--model-size", type=str, default="large",
                         choices=["small", "base", "large"])
-    parser.add_argument("--epochs", type=int, default=100)
-    parser.add_argument("--batch-size", type=int, default=64)
-    parser.add_argument("--lr", type=float, default=1e-4)
-    parser.add_argument("--save-every", type=int, default=20)
+    parser.add_argument("--epochs", type=int, default=200)
+    parser.add_argument("--batch-size", type=int, default=128)
+    parser.add_argument("--lr", type=float, default=5e-4)
+    parser.add_argument("--save-every", type=int, default=25)
     args = parser.parse_args()
     train(args)

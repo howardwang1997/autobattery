@@ -23,6 +23,11 @@ class MultiChemDataset(Dataset):
             self.n_time = int(f.attrs["n_time"])
             self.max_n_params = int(f.attrs["max_n_params"])
 
+            if "temperatures" in f:
+                temperatures = f["temperatures"][:]
+            else:
+                temperatures = np.full(len(V), 298.15, dtype=np.float32)
+
             self.chem_names = {}
             self.chem_param_names = {}
             self.chem_v_stats = {}
@@ -61,6 +66,7 @@ class MultiChemDataset(Dataset):
         self.chem_all = chem_ids[self.indices]
         self.crate_all = c_rates[self.indices]
         self.params_all = params[self.indices]
+        self.temp_all = temperatures[self.indices]
 
         p_flat = self.params_all[self.params_all > 0]
         self.p_global_min = np.percentile(p_flat, 1)
@@ -76,6 +82,7 @@ class MultiChemDataset(Dataset):
         V = self.V_all[idx].copy()
         chem_id = int(self.chem_all[idx])
         c_rate = float(self.crate_all[idx])
+        temperature = float(self.temp_all[idx])
         pvec = self.params_all[idx].copy()
 
         v_stats = self.chem_v_stats.get(chem_id, {"min": 2.5, "max": 4.2})
@@ -95,7 +102,7 @@ class MultiChemDataset(Dataset):
             "V": torch.tensor(V_norm),
             "chem_id": torch.tensor(chem_id, dtype=torch.long),
             "params": torch.tensor(p_norm),
-            "conditions": torch.tensor([c_rate, 298.15], dtype=torch.float32),
+            "conditions": torch.tensor([c_rate, temperature], dtype=torch.float32),
         }
 
 
