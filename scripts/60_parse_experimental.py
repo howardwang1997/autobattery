@@ -52,10 +52,7 @@ def parse_cell(filepath):
     if len(cycles) < MIN_CYCLES:
         return None
 
-    V_curves = []
-    caps = []
-    valid_cycles = []
-
+    raw_cycles = []
     for cyc in cycles:
         cyc_data = discharge[discharge['cycle_index'] == cyc].copy()
         if len(cyc_data) < 5:
@@ -65,20 +62,42 @@ def parse_cell(filepath):
         if np.any(np.isnan(V)) or V.max() < 1.0:
             continue
 
+        cap_col = cyc_data['capacity'].values
+        dcap_col = cyc_data['discharge_capacity'].values
+        cap_from_cap = np.nanmax(cap_col) if not np.all(np.isnan(cap_col)) else np.nan
+        cap_from_dcap = np.nanmax(dcap_col) if not np.all(np.isnan(dcap_col)) else np.nan
+        cap = np.nanmax([cap_from_cap, cap_from_dcap])
+        if np.isnan(cap) or cap <= 0:
+            continue
+
         t = np.linspace(0, 1, len(V))
         t_interp = np.linspace(0, 1, N_TIME)
         V_interp = np.interp(t_interp, t, V)
 
-        cap = cyc_data['capacity'].max()
-        if cap <= 0:
-            cap = cyc_data['discharge_capacity'].max()
+        raw_cycles.append({
+            "V": V_interp.astype(np.float32),
+            "cap": float(cap),
+            "cycle": int(cyc),
+            "n_rows": len(cyc_data),
+        })
 
-        V_curves.append(V_interp.astype(np.float32))
-        caps.append(float(cap))
-        valid_cycles.append(int(cyc))
-
-    if len(valid_cycles) < MIN_CYCLES:
+    if len(raw_cycles) < MIN_CYCLES:
         return None
+
+    caps_all = np.array([c["cap"] for c in raw_cycles])
+    cap_ref = np.percentile(caps_all, 90)
+    if cap_ref <= 0:
+        return None
+
+    stable_cycles = [c for c in raw_cycles if c["cap"] > 0.5 * cap_ref]
+    if len(stable_cycles) < MIN_CYCLES:
+        return None
+
+    V_curves = [c["V"] for c in stable_cycles]
+    caps = [c["cap"] for c in stable_cycles]
+    valid_cycles = [c["cycle"] for c in stable_cycles]
+
+    cap_initial = float(np.median(caps[:min(5, len(caps))]))
 
     return {
         "barcode": barcode,
@@ -88,7 +107,7 @@ def parse_cell(filepath):
         "n_cycles": len(valid_cycles),
         "v_min": float(np.min([v.min() for v in V_curves])),
         "v_max": float(np.max([v.max() for v in V_curves])),
-        "cap_initial": float(caps[0]) if caps[0] > 0 else float(caps[min(5, len(caps)-1)]),
+        "cap_initial": cap_initial,
     }
 
 
@@ -140,8 +159,9 @@ def main():
 
     fade_info = []
     for r in results:
-        if r["cap_initial"] > 0 and len(r["capacity"]) > 10:
-            fade = (1 - r["capacity"][-1] / r["capacity"][0]) * 100
+        cap0 = r["cap_initial"]
+        if cap0 > 0 and len(r["capacity"]) > 1:
+            fade = (1 - r["capacity"][-1] / cap0) * 100
             fade_info.append(fade)
     fade_info = np.array(fade_info)
     logger.info(f"  Capacity fade: [{fade_info.min():.1f}%, {fade_info.max():.1f}%], mean={fade_info.mean():.1f}%")
