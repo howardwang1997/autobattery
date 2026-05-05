@@ -210,6 +210,9 @@ __marimo__/
 data/raw/
 data/processed/
 data/synthetic/
+data/external/
+data/fullfield/
+data/experimental/
 configs/local.yaml
 *.ckpt
 *.pt
