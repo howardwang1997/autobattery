@@ -181,20 +181,39 @@ LIBRARY=outputs/diagnosis/signature_library_lmb.npz \
 
 ---
 
-## 6. Forward PINN 训练（Step 06，待 Phase A1 完成）
+## 6. Forward PINN 训练（Step 06）
+
+Phase A1 重写已完成（`src/pinn/forward.py` 用 `VoltageNormalizer` 杜绝泄露、`_pde_loss` 用真实参数 per-domain forward、`SoftAdapt` 自适应权重）。三档建议跑法：
 
 ```bash
-GPU=0 USE_PDE=0 EPOCHS=1000 \
+# 6a. baseline：纯数据驱动 MLP，global 归一化（无泄露），无 PDE
+GPU=0 MODEL=mlp NORM_MODE=global USE_PDE=0 EPOCHS=1000 \
+  bash scripts/h20/06_train_forward_pinn.sh
+
+# 6b. 真 PINN：MultiDomainPINN + PDE 残差 + SoftAdapt（论文报告主结果）
+GPU=1 MODEL=pinn NORM_MODE=global USE_PDE=1 ADAPTIVE=softadapt \
+  PDE_WARMUP=200 EPOCHS=2000 \
+  bash scripts/h20/06_train_forward_pinn.sh
+
+# 6c. 复现 Phase 0 旧结果（per-sim 归一化）— 仅出现在论文 supplementary 的 ablation
+GPU=2 MODEL=mlp NORM_MODE=per_sim USE_PDE=0 EPOCHS=1000 \
   bash scripts/h20/06_train_forward_pinn.sh
 ```
 
-⚠ 当前的 `src/pinn/forward.py` 仍是 VoltageMLP（数据驱动 MLP），并且用 per-sim 归一化（数据泄露）。**这一步只适合在 Phase A1 PINN 重写完成后再跑**。在那之前用 `MODEL=mlp USE_PDE=0` 跑只是为了 sanity-check 训练流程不崩。
+判通：
+- 6a 在 hold-out cell 上 RMSE 应在 ~30–60 mV（global 归一化下的真实泛化误差，会显著高于 work-log 里报告的 33 mV）
+- 6b 启用 PDE + SoftAdapt 后 RMSE 应不显著回退、PDE residual 收敛到 < 数据 loss 的 0.1×（看日志里 `data=` 与 `pde=` 列）
+- 6c 用来对比验证泄露的影响（应该报告比 6a 低很多的 "RMSE"）
 
-Phase A1 需要在代码侧：
-1. 在 `src/pinn/network.py` 增加 hard BC output transform（output = base + (network output) × mask）；
-2. 在 `src/pinn/losses.py` 加 NTK 自适应权重；
-3. 在 `src/pinn/forward.py` 移除 `_v_per_sim_mean / _v_per_sim_std`，改 global normalization（或者 hard BC 后干脆不做归一化）；
-4. PDE collocation 点采样要按 c_rate 与参数协同采样（当前 collocation_params 全 0，物理上没意义）。
+监控：
+- 训练日志会打 `w_data` 与 `w_pde`（SoftAdapt 当前权重）；前 200 epoch 应是 0.5/0.5 warmup，之后开始分化
+- `data=` 应该单调下降；`pde=` 在 warmup 后开始下降
+- `RMSE=` 是 hold-out 实测电压 RMSE（denormalized），是真实指标
+
+如果 6b 训不出来：
+- 把 `PDE_WARMUP` 从 200 加到 500
+- `ADAPTIVE=none` 退回固定权重，看是 SoftAdapt 不稳还是 PDE 项本身有问题
+- 把 `pde_collocation_points` 从 256 调到 512 或更多
 
 ---
 

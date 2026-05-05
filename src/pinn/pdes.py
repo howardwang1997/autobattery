@@ -291,19 +291,34 @@ class MetalBatteryPDE:
         """
         Compute all PDE residuals.
 
+        ``params`` may carry either a scalar tensor per physics quantity
+        (broadcast to every collocation point) or a per-collocation-point
+        tensor of shape ``(N, 1)``. In the second case we slice it with
+        the same domain mask used to gather the outputs, so the residual
+        operator and its physics parameters are dimension-aligned.
+
         Returns dict of named residuals for weighted loss computation.
         """
         residuals = {}
 
         neg_mask = domain == 0
         pos_mask = domain == 2
+        N = domain.shape[0]
+
+        def _slice(tensor: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
+            """Return ``tensor[mask]`` if it's per-point, else broadcast it."""
+            if tensor.dim() == 0 or tensor.shape[0] == 1:
+                return tensor
+            if tensor.shape[0] == N:
+                return tensor[mask]
+            return tensor   # leave caller's broadcast logic alone
 
         if neg_mask.any():
             residuals["metal_kinetics"] = self.metal_plating_kinetics(
                 c_e=outputs["neg_c_e"],
                 phi_s=outputs["neg_phi_s"],
                 phi_e=outputs["neg_phi_e"],
-                j0_metal=params["j0_metal"],
+                j0_metal=_slice(params["j0_metal"], neg_mask),
             )
 
         if pos_mask.any():
@@ -311,7 +326,7 @@ class MetalBatteryPDE:
                 c_s=outputs["pos_c_s"],
                 t_norm=t_norm[pos_mask],
                 r_norm=r_norm[pos_mask],
-                D_s=params["D_s"],
+                D_s=_slice(params["D_s"], pos_mask),
             )
 
         residuals["sei_growth"] = self.sei_growth_residual(

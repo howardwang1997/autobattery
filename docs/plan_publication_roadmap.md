@@ -116,27 +116,31 @@
 ### Phase A — 基础修缮（4 周，必做）
 **目标**：把 Phase 0 的硬伤补上，让物理与代码站得住脚
 
-A1. 修复 PINN 实质性
-- 重写 `src/pinn/forward.py` 真正加 PDE 残差到 loss；用 NTK 加权（Wang et al. 2022 SciML） 或 SoftAdapt
-- 输出端 hard BC（让网络结构本身满足边界，而非 soft penalty）
-- 目标：移除 per-sim 归一化后，新单体上 RMSE < 30 mV（带 PDE loss）
-- 文件：`src/pinn/losses.py`、`src/pinn/network.py`、新增 `src/pinn/ntk_weighting.py`
+A1. 修复 PINN 实质性 ✅ 代码完成（GPU 验证待 H20）
+- `src/pinn/forward.py` 重写：
+  - `VoltageNormalizer` dataclass — 训/验归一化绑成单一来源，杜绝之前 per-sim/global 不一致 bug
+  - `--norm-mode global`（默认）取消 per-sim 数据泄露；`per_sim` 留 DeprecationWarning
+  - `_pde_loss` 用 per-domain 单独 forward（避免 mixed-domain mask 切断 autograd）
+  - `_physics_params_from_norm` 把 collocation 的归一化参数反演到物理量（D_s/k_sei/j0_metal）— 之前是全 0 占位
+  - `--pde-warmup-epochs` 让 PDE 项延后参与，避免初始噪声把网络推到坏局部解
+- 新增 `src/pinn/adaptive_weighting.py`：SoftAdapt（默认）+ GradNorm（备用）+ HardBoundaryVoltage（输出端硬 BC wrap，可选）
+- 训练入口 `scripts/02_train_forward.py`：暴露 `--norm-mode/--adaptive-weighting/--pde-warmup-epochs`
+- H20 launcher：加 `NORM_MODE / ADAPTIVE / PDE_WARMUP` 环境变量
+- 单元测试 9 个守门：normalizer 一致性、global 可逆、per_sim 触发 deprecation、PDE collocation 用真实参数（不是 0）、SoftAdapt 收敛行为
+- **GPU 验证目标**：`MODEL=pinn USE_PDE=1 ADAPTIVE=softadapt` 在 hold-out cell 上 RMSE < 30 mV
 
-A2. 建 PyBaMM 真 Li-metal anode 模型（做 baseline）
-- PyBaMM 已有 `lithium_plating_option`（plating + stripping + SEI 共耦合，O'Kane 2022 模型）
-- `src/simulation/model.py` 切到 lithium_plating="reversible"+SEI 项；参数从 Hu et al. 2024 LMB 文献找
-- 这同时是 baseline（直接 PyBaMM 拟合）和 surrogate 的训练数据来源
-- 文件：`src/simulation/model.py`、`src/simulation/parameters.py`、`configs/lmb.yaml`
+A2. 建 PyBaMM 真 Li-metal anode 模型（做 baseline）✅ 完成
+- `src/simulation/models.py` 切到 `lithium_ion.DFN(lithium plating="partially reversible", SEI="ec reaction limited")` + `OKane2022` 参数集
+- `configs/lmb.yaml` 新增 8 个 plating/SEI 相关扫描参数
+- `quick_lmb_smoke_test()` 给 H20 setup 用
 
-A3. 把差分电压签名法系统化（你的最强 idea）
-- 当前在 `scripts/28_degradation_modes.py` 是 prototype，搬到 `src/diagnosis/dv_signature.py` 模块化
-- 加 NNLS → 改 ridge / elastic net 比较，加 bootstrap 置信区间
-- 加 ablation：每去掉一个签名退化多少 → 证明每个机理项都不可省
+A3. 把差分电压签名法系统化（你的最强 idea）✅ 完成
+- 模块化到 `src/diagnosis/dv_signature.py`（SignatureLibrary + DegradationDiagnosis）
+- 三种 regressor（ridge/NNLS/elastic_net）+ bootstrap CI + leave-one-signature-out ablation
+- `scripts/32_signature_library_lmb.py` 构造、`scripts/33_diagnose_cells.py` 应用
 
-A4. 建立交叉验证 protocol
-- 至少 3 cells × 1000+ 循环，做 leave-one-cell-out
-- 严格 train/val/test split 不能再泄露
-- 文件：`src/data/cv_split.py`
+A4. 建立交叉验证 protocol ✅ 完成
+- `src/data/cv_split.py`：leave-one-cell-out、cycle-block chronological、stratified-chemistry，全部带 overlap 校验
 
 ### Phase B — 形貌锚定（6–10 周，论文核心）
 **目标**：把 V→机理 的反演结果与 cryo-EM/XPS 实测对齐

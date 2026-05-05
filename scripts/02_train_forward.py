@@ -22,9 +22,20 @@ def main():
     parser.add_argument("--gpu", type=int, default=0)
     parser.add_argument("--batch-size", type=int, default=None)
     parser.add_argument("--epochs", type=int, default=None)
-    parser.add_argument("--use-pde", action="store_true")
-    parser.add_argument("--model", type=str, default="predictor", choices=["mlp", "pinn", "predictor"])
+    parser.add_argument("--use-pde", action="store_true",
+                        help="Add PDE residual loss term (only meaningful with --model pinn)")
+    parser.add_argument("--pde-warmup-epochs", type=int, default=0,
+                        help="Hold the PDE term out of the loss for this many epochs")
+    parser.add_argument("--model", type=str, default="predictor",
+                        choices=["mlp", "pinn", "predictor"])
     parser.add_argument("--lr", type=float, default=None)
+    parser.add_argument("--norm-mode", type=str, default="global",
+                        choices=["global", "per_sim"],
+                        help="Voltage normalisation: 'global' (default, leak-free) or "
+                             "'per_sim' (legacy, leaks per-curve mean/std)")
+    parser.add_argument("--adaptive-weighting", type=str, default="none",
+                        choices=["none", "softadapt"],
+                        help="Adaptive loss-term weighting strategy")
     args = parser.parse_args()
 
     config = load_config(args.config)
@@ -90,6 +101,9 @@ def main():
         checkpoint_dir=config.get("logging", {}).get("checkpoint_dir", "outputs/checkpoints"),
         use_pde=args.use_pde,
         pde_collocation_points=train_cfg.get("batch_size_collocation", 256),
+        pde_warmup_epochs=args.pde_warmup_epochs,
+        norm_mode=args.norm_mode,
+        adaptive_weighting=args.adaptive_weighting,
     )
 
     history = trainer.train(
@@ -149,8 +163,8 @@ def _plot_predictions(trainer, data_path, config):
     loader = SyntheticDataLoader(data_path)
     device = trainer.device
 
-    v_mean = trainer._v_mean
-    v_std = trainer._v_std
+    v_mean = trainer.normalizer.v_mean_global
+    v_std = trainer.normalizer.v_std_global
     param_mean = trainer._param_mean
     param_std = trainer._param_std
 
