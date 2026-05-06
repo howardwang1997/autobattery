@@ -2,11 +2,15 @@
 
 ## §1 Project Overview
 
-**Goal**: Build a rigorous framework for battery degradation parameter identifiability analysis (Fisher Information theory + Bayesian diagnosis + cross-chemistry validation), targeting JPS/Applied Energy publication. Secondary track: three-stage Pretrain-Finetune-LoRA framework for NE/Joule.
+**Goal**: Two parallel publication tracks:
+- **Route A**: Battery degradation parameter identifiability analysis (Fisher Information theory + Bayesian diagnosis + cross-chemistry validation), targeting JPS/Applied Energy.
+- **Route C**: Universal scaling and degradation archetypes across 10⁴ lithium-ion cells, targeting Joule / Nat. Comm.
+
+Secondary track: **Route B** LMB Cryo-EM story (NE/Joule, 6-12 months, see `docs/plan_publication_roadmap.md`).
 
 **Remote server**: `10.239.68.24` (2× NVIDIA H20, conda env `autobattery`)
 **Working directory**: `/AI4S/Users/howardwang/h204/autobattery`
-**Current branch**: `main` (at `840c576`)
+**Current branch**: `main` (at `da2dedf`)
 
 ## §2 Environment & Constraints
 
@@ -136,10 +140,21 @@
 
 **Key finding**: Different methods give different parameter rankings — identifiability is method-dependent, requiring multi-method validation.
 
-### B5: Profile Likelihood (attempted, `scripts/96_profile_likelihood.py`)
-- Surrogate-based (MLP R²=0.87): all params show identical flat profiles → surrogate too inaccurate
-- Empirical (database binning): too sparse in 7D, all flat
-- **Blocker**: needs PyBaMM forward model for proper profile likelihood (est. 2-4 hours compute)
+### B5: Profile Likelihood (completed, `scripts/96c_profile_likelihood_gp.py`)
+- MLP surrogate (R²=0.87): all flat → insufficient
+- **GP surrogate (R²=0.999)**: clean separation achieved
+- **R_mult is the only unidentifiable parameter** (Δχ²_max=0.86, flat profile)
+- All other params show sharp profiles (Δχ²_max > 1000)
+- Cross-method disagreement: Fisher says D_p/t+/LAM_pos also UN; PL says they're ID
+- Figure: `outputs/profile_likelihood/gp_profile_likelihood.png`
+
+### B5b: Rank Robustness — Cross-Chemistry (`scripts/99_rank_robustness.py`)
+**LFP (1200 sims):** η=1e-3 → rank=3 [3–3], joint multi-rate → rank=4
+**LIB (1888 sims):** η=1e-3 → rank=3 [2–3], joint multi-rate → rank=4
+- rank=3 confirmed across BOTH chemistries at η=1e-3
+- Multi-rate Fisher gains +1 rank in both cases
+- Raw parameterisation gives lower rank (scale issues)
+- Figures: `outputs/rank_robustness/`, `outputs/rank_robustness/lib/`
 
 ## §6 Cross-Cutting Conclusions
 
@@ -152,6 +167,27 @@
 7. **Real LFP degradation is rank ~1** (below Fisher rank=3) — dominated by single mechanism
 8. **V(t) evolution strongly encodes degradation state** (delta_V → fade% R²=0.97)
 9. **Late discharge region** (t=57-61 in normalized time) carries most information about fade
+
+### B6: Rank Robustness (`scripts/99_rank_robustness.py`)
+**η-rank table (log_standardised, all data):**
+| η | rank median | 95% CI |
+|---|------------|--------|
+| 1e-2 | 3 | [2–3] |
+| 1e-3 | **3** | [3–3] |
+| 1e-6 | 7 | [7–7] |
+
+- rank=3 robust at η=1e-3 across all 4 parameterisations (raw/log/log_std/pca_white)
+- Multi-rate joint Fisher: single-rate rank=3 → joint rank=4 (η=1e-3)
+- Raw parameterisation gives lower rank (2-5) due to extreme scale differences
+- Bootstrap 200× confirms stability
+- Figures: `outputs/rank_robustness/spectrum.png`, `rank_vs_eta.png`, `rank_gain_multirate.png`
+
+### B7: Universality Pipeline — Severson Dryrun (`scripts/101_severson_dryrun.py`)
+- **Archetypes**: k=6 (BIC-selected), ≥2 required → PASS
+- **Scaling collapse**: RMS=3.78%, ≤5% required → PASS
+- **Knee recall**: 100%, ≥80% required → PASS
+- **Master curve fit**: R²=0.967 (power_exp form), 91.1% curves within ±5%
+- **Verdict**: Pipeline ready for 10K data
 
 ## §7 Publication Roadmap
 
@@ -168,41 +204,89 @@
    - Fig 2: Cross-chemistry ID/UN separation (MI analysis, 28.7× ratio)
    - Fig 3: MIT Severson manifold analysis (eff_rank 1.22, PCA, info map)
    - Fig 4: Signature ablation (Fisher-guided 99.4% of full)
-   - Fig 5: Sensitivity comparison across methods
+   - Fig 5: Rank robustness (η-sweep, parameterisation, multi-rate)
+   - Fig 6: Sensitivity comparison across methods
 5. Discussion: implications for degradation modeling, model reduction
 6. Conclusion: rank=3 universal, Fisher-guided selection near-optimal
 
+**Completed:**
+- [x] GP Profile Likelihood using fullfield simulation V(t) as target (`scripts/96c_profile_likelihood_gp.py`)
+- [x] Cross-chemistry rank robustness on LIB fullfield (`scripts/99_rank_robustness.py`)
+- [x] Publication-quality figures (`scripts/103_paper_figures.py`) — 8 figures in `outputs/paper_figures/`
+
 **Remaining work:**
-- [ ] Profile Likelihood with PyBaMM forward model (for Fig 3)
-- [ ] Publication-quality figures
-- [ ] Cross-chemistry NMC/NCA fullfield generation (if time)
-- [ ] Paper writing
+- [ ] Paper writing (all experimental results available)
+
+### Route C: Universality & Scaling (Joule / Nat. Comm.)
+**Title**: "Universal Scaling and Degradation Archetypes Across 10⁴ Lithium-Ion Cells"
+**Plan**: `docs/plan_universality_paper.md`
+
+**Pipeline**: `src/universality/` (curves, knee, archetype, scaling, phase_diagram)
+**Scripts**: `100_health_check.py`, `101_severson_dryrun.py`, `102_universality_pipeline.py`, `103_paper_figures.py`
+
+**Severson dryrun**: ALL PASS (archetypes k=6, collapse RMS=3.78%, knee recall=100%)
+**Status**: Waiting for proprietary 10K-cell dataset
+
+**What to do before 10K data:**
+- [x] `scripts/103_paper_figures.py` — 8 figures generated in `outputs/paper_figures/`
+- [x] Severson archetype internal analysis (within-archetype scaling, N★ distribution)
+- [ ] Synthetic 10K-cell benchmark (generate from simulation to validate pipeline at scale)
+- [ ] Paper methods section draft (pipeline description independent of data)
 
 ### Route B: LMB Cryo-EM Story (NE/Joule, 6-12 months)
 See `docs/plan_publication_roadmap.md` on main branch.
 
-## §8 Key Scripts (on remote server)
+## §8 Next Action Plan (Priority Order)
+
+### Immediate (this week)
+1. ~~**Run GP Profile Likelihood** (`96c`) using fullfield simulation V(t)~~ ✅ R_mult only UN
+2. ~~**Run rank robustness on LIB fullfield**~~ ✅ rank=3 confirmed cross-chemistry
+3. **Start Route A paper writing** — all experimental results available
+4. ~~**Write `103_paper_figures.py`**~~ ✅ 8 figures in `outputs/paper_figures/`
+
+### Short-term (1-2 weeks)
+5. **Refine Route A figures** for journal submission (font size, colorblind palette, etc.)
+6. **Paper methods + results sections** — combine all Phase A/B results into manuscript
+7. **Synthetic 10K-cell benchmark** for universality pipeline validation at scale
+
+### Pending external data
+8. **Route C full run** when proprietary 10K data arrives
+9. **Profile Likelihood on real experimental data** when Neware xlsx available
+
+## §9 Key Scripts (on remote server)
 
 | Script | Purpose | Status |
 |--------|---------|--------|
 | `scripts/94_parse_severson.py` | MIT/Severson parser (mat73) | Done |
 | `scripts/95_severson_bayesian_validation.py` | BNN + PCA + info map validation | Done |
-| `scripts/96_profile_likelihood.py` | Profile likelihood (surrogate-based) | Blocked |
+| `scripts/96c_profile_likelihood_gp.py` | Profile likelihood (GP surrogate) | Done (R_mult only UN) |
+| `scripts/96b_profile_likelihood_pybamm.py` | Profile likelihood (PyBaMM forward) | Needs adaptation for simulation data |
 | `scripts/97_signature_ablation.py` | Signature library ablation | Done |
 | `scripts/98b_sensitivity_profile.py` | Sensitivity ranking + profile | Done |
+| `scripts/99_rank_robustness.py` | η-rank robustness + bootstrap + multi-rate | Done |
+| `scripts/100_health_check.py` | Universality dataset pre-check | Done |
+| `scripts/101_severson_dryrun.py` | Universality Severson dry run | Done (ALL PASS) |
+| `scripts/102_universality_pipeline.py` | Full universality pipeline (10K data) | Waiting for data |
+| `scripts/103_paper_figures.py` | Paper figure generation | Done (8 figs) |
 | `scripts/11_generate_fullfield.py` | Generate fullfield simulation data | Existing |
 | `scripts/30_baseline_pybamm_fit.py` | PyBaMM MLE baseline | Existing |
 | `scripts/18_fisher_analysis.py` | Fisher analysis | Existing |
 
-## §9 Output Files
+## §10 Output Files
 
 | Path | Content |
 |------|---------|
 | `outputs/rigorous_identifiability/` | Phase A Jacobian, subspace, practical results |
 | `outputs/severson_validation/severson_validation_results.json` | MIT BNN/PCA/rank validation |
 | `outputs/signature_ablation/signature_ablation_results.json` | Ablation study results |
+| `outputs/profile_likelihood/gp_profile_likelihood_results.json` | GP PL results (R_mult UN) |
 | `outputs/profile_likelihood/sensitivity_profile_results.json` | Sensitivity + profile analysis |
 | `outputs/profile_likelihood/empirical_profile_likelihood_results.json` | Empirical PL (limited) |
+| `outputs/profile_likelihood/gp_profile_likelihood.png` | GP PL figure |
+| `outputs/rank_robustness/` | LFP rank table, spectra, η-sweep plots |
+| `outputs/rank_robustness/lib/` | LIB rank table, spectra, η-sweep plots |
+| `outputs/paper_figures/` | 8 publication figures (fig1-fig8) |
+| `outputs/universality/severson/` | Severson dryrun results (archetype, scaling, knee) |
 | `data/external/severson/severson_lfp.h5` | Parsed Severson dataset (138 cells) |
 
 ## §10 Conventions

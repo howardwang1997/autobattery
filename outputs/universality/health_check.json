@@ -1,0 +1,43 @@
+{
+  "checks": {
+    "n_cells": {
+      "value": 138,
+      "pass_floor": false,
+      "pass_recommended": false
+    },
+    "median_cycles_per_cell": {
+      "value": 785.5,
+      "pass_floor": true,
+      "pass_recommended": true
+    },
+    "pct_reaching_80pct_SOH": {
+      "value": 31.15942028985507,
+      "pass_floor": true,
+      "pass_recommended": false
+    },
+    "n_formulation_features": {
+      "value": 2,
+      "pass_floor": true,
+      "pass_recommended": false
+    },
+    "n_unique_configs": {
+      "value": 129,
+      "pass_floor": true
+    },
+    "median_cells_per_config": {
+      "value": 1.0,
+      "pass_floor": false
+    }
+  },
+  "method_verdicts": {
+    "archetype_clustering": false,
+    "scaling_collapse": false,
+    "phase_diagram": false,
+    "symbolic_law": false
+  },
+  "ceiling_estimate": "below paper threshold",
+  "feature_names": [
+    "batch",
+    "cycle_life"
+  ]
+}

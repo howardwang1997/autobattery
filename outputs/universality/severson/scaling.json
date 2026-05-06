@@ -1,0 +1,16 @@
+{
+  "n_cells_used": 138,
+  "residual_rms": 0.03780081379757791,
+  "residual_median": 0.007107139293052844,
+  "collapse_fraction_5pct": 0.9105079917708498,
+  "collapse_fraction_10pct": 0.9617423642981484,
+  "parametric_master": {
+    "form": "power_exp",
+    "params": [
+      0.3628426872193748,
+      7.588375438436447,
+      4.029859891626939
+    ],
+    "r2": 0.9669634704734213
+  }
+}

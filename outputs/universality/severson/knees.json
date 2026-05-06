@@ -1,0 +1,835 @@
+{
+  "method": "kneedle",
+  "n_with_knee": 138,
+  "knee_recall": 1.0,
+  "per_cell": [
+    {
+      "cell_id": "mit_b0_c000",
+      "N_knee": 9.0,
+      "has_knee": true,
+      "confidence": 0.056825307827113314
+    },
+    {
+      "cell_id": "mit_b0_c001",
+      "N_knee": 955.0,
+      "has_knee": true,
+      "confidence": 0.18252598759290176
+    },
+    {
+      "cell_id": "mit_b0_c002",
+      "N_knee": 970.0,
+      "has_knee": true,
+      "confidence": 0.2158935751237759
+    },
+    {
+      "cell_id": "mit_b0_c003",
+      "N_knee": 951.0,
+      "has_knee": true,
+      "confidence": 0.6180474496530021
+    },
+    {
+      "cell_id": "mit_b0_c004",
+      "N_knee": 962.0,
+      "has_knee": true,
+      "confidence": 0.332289688026831
+    },
+    {
+      "cell_id": "mit_b0_c005",
+      "N_knee": 910.0,
+      "has_knee": true,
+      "confidence": 1.0
+    },
+    {
+      "cell_id": "mit_b0_c006",
+      "N_knee": 10.0,
+      "has_knee": true,
+      "confidence": 0.03063360441173509
+    },
+    {
+      "cell_id": "mit_b0_c007",
+      "N_knee": 430.0,
+      "has_knee": true,
+      "confidence": 0.9815643252770155
+    },
+    {
+      "cell_id": "mit_b0_c008",
+      "N_knee": 752.0,
+      "has_knee": true,
+      "confidence": 1.0
+    },
+    {
+      "cell_id": "mit_b0_c009",
+      "N_knee": 847.0,
+      "has_knee": true,
+      "confidence": 1.0
+    },
+    {
+      "cell_id": "mit_b0_c010",
+      "N_knee": 546.0,
+      "has_knee": true,
+      "confidence": 0.7301182491213165
+    },
+    {
+      "cell_id": "mit_b0_c011",
+      "N_knee": 9.0,
+      "has_knee": true,
+      "confidence": 0.015911586673327777
+    },
+    {
+      "cell_id": "mit_b0_c012",
+      "N_knee": 504.0,
+      "has_knee": true,
+      "confidence": 1.0
+    },
+    {
+      "cell_id": "mit_b0_c013",
+      "N_knee": 498.0,
+      "has_knee": true,
+      "confidence": 0.9165469543374377
+    },
+    {
+      "cell_id": "mit_b0_c014",
+      "N_knee": 10.0,
+      "has_knee": true,
+      "confidence": 0.014687181408877177
+    },
+    {
+      "cell_id": "mit_b0_c015",
+      "N_knee": 10.0,
+      "has_knee": true,
+      "confidence": 0.00969188703983966
+    },
+    {
+      "cell_id": "mit_b0_c016",
+      "N_knee": 320.0,
+      "has_knee": true,
+      "confidence": 0.5218041384320687
+    },
+    {
+      "cell_id": "mit_b0_c017",
+      "N_knee": 430.0,
+      "has_knee": true,
+      "confidence": 1.0
+    },
+    {
+      "cell_id": "mit_b0_c018",
+      "N_knee": 39.0,
+      "has_knee": true,
+      "confidence": 0.02305570166860974
+    },
+    {
+      "cell_id": "mit_b0_c019",
+      "N_knee": 94.0,
+      "has_knee": true,
+      "confidence": 1.0
+    },
+    {
+      "cell_id": "mit_b0_c020",
+      "N_knee": 10.0,
+      "has_knee": true,
+      "confidence": 0.20843980426482744
+    },
+    {
+      "cell_id": "mit_b0_c021",
+      "N_knee": 10.0,
+      "has_knee": true,
+      "confidence": 0.1251382427656109
+    },
+    {
+      "cell_id": "mit_b0_c022",
+      "N_knee": 83.0,
+      "has_knee": true,
+      "confidence": 1.0
+    },
+    {
+      "cell_id": "mit_b0_c023",
+      "N_knee": 83.0,
+      "has_knee": true,
+      "confidence": 1.0
+    },
+    {
+      "cell_id": "mit_b0_c024",
+      "N_knee": 212.0,
+      "has_knee": true,
+      "confidence": 0.7509239288732826
+    },
+    {
+      "cell_id": "mit_b0_c025",
+      "N_knee": 24.0,
+      "has_knee": true,
+      "confidence": 0.10100138336349423
+    },
+    {
+      "cell_id": "mit_b0_c026",
+      "N_knee": 431.0,
+      "has_knee": true,
+      "confidence": 0.9248140786125062
+    },
+    {
+      "cell_id": "mit_b0_c027",
+      "N_knee": 560.0,
+      "has_knee": true,
+      "confidence": 1.0
+    },
+    {
+      "cell_id": "mit_b0_c028",
+      "N_knee": 235.0,
+      "has_knee": true,
+      "confidence": 0.6112172512942405
+    },
+    {
+      "cell_id": "mit_b0_c029",
+      "N_knee": 455.0,
+      "has_knee": true,
+      "confidence": 0.7721750824921841
+    },
+    {
+      "cell_id": "mit_b0_c030",
+      "N_knee": 434.0,
+      "has_knee": true,
+      "confidence": 1.0
+    },
+    {
+      "cell_id": "mit_b0_c031",
+      "N_knee": 627.0,
+      "has_knee": true,
+      "confidence": 1.0
+    },
+    {
+      "cell_id": "mit_b0_c032",
+      "N_knee": 147.0,
+      "has_knee": true,
+      "confidence": 0.8208927068902341
+    },
+    {
+      "cell_id": "mit_b0_c033",
+      "N_knee": 116.0,
+      "has_knee": true,
+      "confidence": 0.7262995176648431
+    },
+    {
+      "cell_id": "mit_b0_c034",
+      "N_knee": 367.0,
+      "has_knee": true,
+      "confidence": 0.8241161564070426
+    },
+    {
+      "cell_id": "mit_b0_c035",
+      "N_knee": 363.0,
+      "has_knee": true,
+      "confidence": 1.0
+    },
+    {
+      "cell_id": "mit_b0_c036",
+      "N_knee": 390.0,
+      "has_knee": true,
+      "confidence": 1.0
+    },
+    {
+      "cell_id": "mit_b0_c037",
+      "N_knee": 223.0,
+      "has_knee": true,
+      "confidence": 0.5465495479889605
+    },
+    {
+      "cell_id": "mit_b0_c038",
+      "N_knee": 232.0,
+      "has_knee": true,
+      "confidence": 0.7543868522175691
+    },
+    {
+      "cell_id": "mit_b0_c039",
+      "N_knee": 505.0,
+      "has_knee": true,
+      "confidence": 1.0
+    },
+    {
+      "cell_id": "mit_b0_c040",
+      "N_knee": 572.0,
+      "has_knee": true,
+      "confidence": 1.0
+    },
+    {
+      "cell_id": "mit_b0_c041",
+      "N_knee": 959.0,
+      "has_knee": true,
+      "confidence": 0.6414817709327836
+    },
+    {
+      "cell_id": "mit_b0_c042",
+      "N_knee": 498.0,
+      "has_knee": true,
+      "confidence": 1.0
+    },
+    {
+      "cell_id": "mit_b0_c043",
+      "N_knee": 300.0,
+      "has_knee": true,
+      "confidence": 0.6615498034617465
+    },
+    {
+      "cell_id": "mit_b0_c044",
+      "N_knee": 501.0,
+      "has_knee": true,
+      "confidence": 0.7817583087951653
+    },
+    {
+      "cell_id": "mit_b0_c045",
+      "N_knee": 506.0,
+      "has_knee": true,
+      "confidence": 0.7562305526044412
+    },
+    {
+      "cell_id": "mit_b1_c000",
+      "N_knee": 71.0,
+      "has_knee": true,
+      "confidence": 0.7130809426361782
+    },
+    {
+      "cell_id": "mit_b1_c001",
+      "N_knee": 4.0,
+      "has_knee": true,
+      "confidence": 0.18511729473880367
+    },
+    {
+      "cell_id": "mit_b1_c002",
+      "N_knee": 88.0,
+      "has_knee": true,
+      "confidence": 1.0
+    },
+    {
+      "cell_id": "mit_b1_c003",
+      "N_knee": 252.0,
+      "has_knee": true,
+      "confidence": 0.49191026841004754
+    },
+    {
+      "cell_id": "mit_b1_c004",
+      "N_knee": 249.0,
+      "has_knee": true,
+      "confidence": 0.47409906673743013
+    },
+    {
+      "cell_id": "mit_b1_c005",
+      "N_knee": 250.0,
+      "has_knee": true,
+      "confidence": 0.739377677920947
+    },
+    {
+      "cell_id": "mit_b1_c006",
+      "N_knee": 256.0,
+      "has_knee": true,
+      "confidence": 0.3081529751145394
+    },
+    {
+      "cell_id": "mit_b1_c007",
+      "N_knee": 589.0,
+      "has_knee": true,
+      "confidence": 0.37615956940487383
+    },
+    {
+      "cell_id": "mit_b1_c008",
+      "N_knee": 58.0,
+      "has_knee": true,
+      "confidence": 0.3258695188199227
+    },
+    {
+      "cell_id": "mit_b1_c009",
+      "N_knee": 309.0,
+      "has_knee": true,
+      "confidence": 0.573590470898573
+    },
+    {
+      "cell_id": "mit_b1_c010",
+      "N_knee": 249.0,
+      "has_knee": true,
+      "confidence": 0.4165821538242775
+    },
+    {
+      "cell_id": "mit_b1_c011",
+      "N_knee": 248.0,
+      "has_knee": true,
+      "confidence": 0.5817472219214257
+    },
+    {
+      "cell_id": "mit_b1_c012",
+      "N_knee": 255.0,
+      "has_knee": true,
+      "confidence": 1.0
+    },
+    {
+      "cell_id": "mit_b1_c013",
+      "N_knee": 248.0,
+      "has_knee": true,
+      "confidence": 0.5061037868874425
+    },
+    {
+      "cell_id": "mit_b1_c014",
+      "N_knee": 246.0,
+      "has_knee": true,
+      "confidence": 0.7539310124689599
+    },
+    {
+      "cell_id": "mit_b1_c015",
+      "N_knee": 21.0,
+      "has_knee": true,
+      "confidence": 0.23540107782505137
+    },
+    {
+      "cell_id": "mit_b1_c016",
+      "N_knee": 157.0,
+      "has_knee": true,
+      "confidence": 0.8123013731371055
+    },
+    {
+      "cell_id": "mit_b1_c017",
+      "N_knee": 116.0,
+      "has_knee": true,
+      "confidence": 0.9972390128814673
+    },
+    {
+      "cell_id": "mit_b1_c018",
+      "N_knee": 248.0,
+      "has_knee": true,
+      "confidence": 0.48298772906648063
+    },
+    {
+      "cell_id": "mit_b1_c019",
+      "N_knee": 247.0,
+      "has_knee": true,
+      "confidence": 0.41860697747440123
+    },
+    {
+      "cell_id": "mit_b1_c020",
+      "N_knee": 247.0,
+      "has_knee": true,
+      "confidence": 0.7389518003546905
+    },
+    {
+      "cell_id": "mit_b1_c021",
+      "N_knee": 121.0,
+      "has_knee": true,
+      "confidence": 1.0
+    },
+    {
+      "cell_id": "mit_b1_c022",
+      "N_knee": 245.0,
+      "has_knee": true,
+      "confidence": 0.5612557314351391
+    },
+    {
+      "cell_id": "mit_b1_c023",
+      "N_knee": 326.0,
+      "has_knee": true,
+      "confidence": 1.0
+    },
+    {
+      "cell_id": "mit_b1_c024",
+      "N_knee": 247.0,
+      "has_knee": true,
+      "confidence": 0.7245911020987256
+    },
+    {
+      "cell_id": "mit_b1_c025",
+      "N_knee": 246.0,
+      "has_knee": true,
+      "confidence": 0.6220686673317708
+    },
+    {
+      "cell_id": "mit_b1_c026",
+      "N_knee": 246.0,
+      "has_knee": true,
+      "confidence": 0.639554245896473
+    },
+    {
+      "cell_id": "mit_b1_c027",
+      "N_knee": 14.0,
+      "has_knee": true,
+      "confidence": 0.031001079674520995
+    },
+    {
+      "cell_id": "mit_b1_c028",
+      "N_knee": 248.0,
+      "has_knee": true,
+      "confidence": 0.8648770513052408
+    },
+    {
+      "cell_id": "mit_b1_c029",
+      "N_knee": 245.0,
+      "has_knee": true,
+      "confidence": 1.0
+    },
+    {
+      "cell_id": "mit_b1_c030",
+      "N_knee": 57.0,
+      "has_knee": true,
+      "confidence": 0.3637153851293928
+    },
+    {
+      "cell_id": "mit_b1_c031",
+      "N_knee": 249.0,
+      "has_knee": true,
+      "confidence": 0.941502206164519
+    },
+    {
+      "cell_id": "mit_b1_c032",
+      "N_knee": 452.0,
+      "has_knee": true,
+      "confidence": 1.0
+    },
+    {
+      "cell_id": "mit_b1_c033",
+      "N_knee": 246.0,
+      "has_knee": true,
+      "confidence": 1.0
+    },
+    {
+      "cell_id": "mit_b1_c034",
+      "N_knee": 144.0,
+      "has_knee": true,
+      "confidence": 1.0
+    },
+    {
+      "cell_id": "mit_b1_c035",
+      "N_knee": 248.0,
+      "has_knee": true,
+      "confidence": 0.6495661945792622
+    },
+    {
+      "cell_id": "mit_b1_c036",
+      "N_knee": 246.0,
+      "has_knee": true,
+      "confidence": 0.8909571077520941
+    },
+    {
+      "cell_id": "mit_b1_c037",
+      "N_knee": 247.0,
+      "has_knee": true,
+      "confidence": 0.6092624512409802
+    },
+    {
+      "cell_id": "mit_b1_c038",
+      "N_knee": 246.0,
+      "has_knee": true,
+      "confidence": 0.9347908685248765
+    },
+    {
+      "cell_id": "mit_b1_c039",
+      "N_knee": 246.0,
+      "has_knee": true,
+      "confidence": 1.0
+    },
+    {
+      "cell_id": "mit_b1_c040",
+      "N_knee": 361.0,
+      "has_knee": true,
+      "confidence": 1.0
+    },
+    {
+      "cell_id": "mit_b1_c041",
+      "N_knee": 106.0,
+      "has_knee": true,
+      "confidence": 1.0
+    },
+    {
+      "cell_id": "mit_b1_c042",
+      "N_knee": 245.0,
+      "has_knee": true,
+      "confidence": 0.8783075671603785
+    },
+    {
+      "cell_id": "mit_b1_c043",
+      "N_knee": 246.0,
+      "has_knee": true,
+      "confidence": 0.9715783279869245
+    },
+    {
+      "cell_id": "mit_b1_c044",
+      "N_knee": 246.0,
+      "has_knee": true,
+      "confidence": 1.0
+    },
+    {
+      "cell_id": "mit_b1_c045",
+      "N_knee": 247.0,
+      "has_knee": true,
+      "confidence": 0.7149667995099152
+    },
+    {
+      "cell_id": "mit_b1_c046",
+      "N_knee": 430.0,
+      "has_knee": true,
+      "confidence": 0.6284247296552744
+    },
+    {
+      "cell_id": "mit_b1_c047",
+      "N_knee": 256.0,
+      "has_knee": true,
+      "confidence": 0.4682391681277813
+    },
+    {
+      "cell_id": "mit_b2_c000",
+      "N_knee": 29.0,
+      "has_knee": true,
+      "confidence": 0.10051965002396225
+    },
+    {
+      "cell_id": "mit_b2_c001",
+      "N_knee": 582.0,
+      "has_knee": true,
+      "confidence": 0.5869282307994643
+    },
+    {
+      "cell_id": "mit_b2_c002",
+      "N_knee": 123.0,
+      "has_knee": true,
+      "confidence": 0.7303254567807455
+    },
+    {
+      "cell_id": "mit_b2_c003",
+      "N_knee": 636.0,
+      "has_knee": true,
+      "confidence": 0.6342742399545747
+    },
+    {
+      "cell_id": "mit_b2_c004",
+      "N_knee": 78.0,
+      "has_knee": true,
+      "confidence": 1.0
+    },
+    {
+      "cell_id": "mit_b2_c005",
+      "N_knee": 329.0,
+      "has_knee": true,
+      "confidence": 0.4766848856184796
+    },
+    {
+      "cell_id": "mit_b2_c006",
+      "N_knee": 552.0,
+      "has_knee": true,
+      "confidence": 0.46472912399128136
+    },
+    {
+      "cell_id": "mit_b2_c007",
+      "N_knee": 29.0,
+      "has_knee": true,
+      "confidence": 0.0717844318350785
+    },
+    {
+      "cell_id": "mit_b2_c008",
+      "N_knee": 283.0,
+      "has_knee": true,
+      "confidence": 0.5749340791861973
+    },
+    {
+      "cell_id": "mit_b2_c009",
+      "N_knee": 143.0,
+      "has_knee": true,
+      "confidence": 1.0
+    },
+    {
+      "cell_id": "mit_b2_c010",
+      "N_knee": 544.0,
+      "has_knee": true,
+      "confidence": 0.5741579123575918
+    },
+    {
+      "cell_id": "mit_b2_c011",
+      "N_knee": 143.0,
+      "has_knee": true,
+      "confidence": 0.6941436450613518
+    },
+    {
+      "cell_id": "mit_b2_c012",
+      "N_knee": 465.0,
+      "has_knee": true,
+      "confidence": 0.8092188294663726
+    },
+    {
+      "cell_id": "mit_b2_c013",
+      "N_knee": 53.0,
+      "has_knee": true,
+      "confidence": 0.4619710600759451
+    },
+    {
+      "cell_id": "mit_b2_c014",
+      "N_knee": 141.0,
+      "has_knee": true,
+      "confidence": 1.0
+    },
+    {
+      "cell_id": "mit_b2_c015",
+      "N_knee": 375.0,
+      "has_knee": true,
+      "confidence": 0.6753498241697949
+    },
+    {
+      "cell_id": "mit_b2_c016",
+      "N_knee": 570.0,
+      "has_knee": true,
+      "confidence": 0.3599631818832585
+    },
+    {
+      "cell_id": "mit_b2_c017",
+      "N_knee": 14.0,
+      "has_knee": true,
+      "confidence": 0.0404754585424111
+    },
+    {
+      "cell_id": "mit_b2_c018",
+      "N_knee": 386.0,
+      "has_knee": true,
+      "confidence": 0.39997723488651477
+    },
+    {
+      "cell_id": "mit_b2_c019",
+      "N_knee": 416.0,
+      "has_knee": true,
+      "confidence": 0.41402419000788043
+    },
+    {
+      "cell_id": "mit_b2_c020",
+      "N_knee": 75.0,
+      "has_knee": true,
+      "confidence": 1.0
+    },
+    {
+      "cell_id": "mit_b2_c021",
+      "N_knee": 407.0,
+      "has_knee": true,
+      "confidence": 0.4907866291246514
+    },
+    {
+      "cell_id": "mit_b2_c022",
+      "N_knee": 359.0,
+      "has_knee": true,
+      "confidence": 0.5058632594227516
+    },
+    {
+      "cell_id": "mit_b2_c024",
+      "N_knee": 294.0,
+      "has_knee": true,
+      "confidence": 0.49219698000807405
+    },
+    {
+      "cell_id": "mit_b2_c025",
+      "N_knee": 389.0,
+      "has_knee": true,
+      "confidence": 0.524442417060951
+    },
+    {
+      "cell_id": "mit_b2_c026",
+      "N_knee": 292.0,
+      "has_knee": true,
+      "confidence": 0.5408530284700422
+    },
+    {
+      "cell_id": "mit_b2_c027",
+      "N_knee": 143.0,
+      "has_knee": true,
+      "confidence": 0.9846579432433081
+    },
+    {
+      "cell_id": "mit_b2_c028",
+      "N_knee": 115.0,
+      "has_knee": true,
+      "confidence": 0.37334563182306924
+    },
+    {
+      "cell_id": "mit_b2_c029",
+      "N_knee": 109.0,
+      "has_knee": true,
+      "confidence": 1.0
+    },
+    {
+      "cell_id": "mit_b2_c030",
+      "N_knee": 301.0,
+      "has_knee": true,
+      "confidence": 0.44843716810122863
+    },
+    {
+      "cell_id": "mit_b2_c031",
+      "N_knee": 110.0,
+      "has_knee": true,
+      "confidence": 1.0
+    },
+    {
+      "cell_id": "mit_b2_c033",
+      "N_knee": 352.0,
+      "has_knee": true,
+      "confidence": 0.41387899734783656
+    },
+    {
+      "cell_id": "mit_b2_c034",
+      "N_knee": 133.0,
+      "has_knee": true,
+      "confidence": 0.5737370853137771
+    },
+    {
+      "cell_id": "mit_b2_c035",
+      "N_knee": 355.0,
+      "has_knee": true,
+      "confidence": 0.43637101943405665
+    },
+    {
+      "cell_id": "mit_b2_c036",
+      "N_knee": 64.0,
+      "has_knee": true,
+      "confidence": 1.0
+    },
+    {
+      "cell_id": "mit_b2_c037",
+      "N_knee": 52.0,
+      "has_knee": true,
+      "confidence": 0.2803447426642933
+    },
+    {
+      "cell_id": "mit_b2_c038",
+      "N_knee": 17.0,
+      "has_knee": true,
+      "confidence": 0.052505996135345255
+    },
+    {
+      "cell_id": "mit_b2_c039",
+      "N_knee": 25.0,
+      "has_knee": true,
+      "confidence": 0.07042240185825417
+    },
+    {
+      "cell_id": "mit_b2_c040",
+      "N_knee": 239.0,
+      "has_knee": true,
+      "confidence": 0.6078368633600097
+    },
+    {
+      "cell_id": "mit_b2_c041",
+      "N_knee": 206.0,
+      "has_knee": true,
+      "confidence": 1.0
+    },
+    {
+      "cell_id": "mit_b2_c042",
+      "N_knee": 504.0,
+      "has_knee": true,
+      "confidence": 0.455575912649082
+    },
+    {
+      "cell_id": "mit_b2_c043",
+      "N_knee": 783.0,
+      "has_knee": true,
+      "confidence": 1.0
+    },
+    {
+      "cell_id": "mit_b2_c044",
+      "N_knee": 273.0,
+      "has_knee": true,
+      "confidence": 0.6699293488936763
+    },
+    {
+      "cell_id": "mit_b2_c045",
+      "N_knee": 199.0,
+      "has_knee": true,
+      "confidence": 0.8105210186345327
+    }
+  ]
+}
