@@ -33,12 +33,12 @@ A Cross-Chemistry Validation Study}
 
 \begin{abstract}
 Parameter identifiability is a fundamental prerequisite for physics-based battery degradation diagnosis, yet the information content of standard voltage measurements remains poorly quantified.
-We present a rigorous Fisher Information analysis of the single particle model (SPM) under degradation, proving that the voltage response has effective rank $\leq 3$ across five lithium-ion chemistries (NMC811, NCA, LFP, LFP\textsubscript{v2}, LCO), implying that at most three of seven degradation mechanisms can be simultaneously identified from constant-current discharge data.
-Mutual information estimation yields a 28.7$\times$ separation ratio between identifiable parameters (D$_n$, SEI, LAM$_{\mathrm{neg}}$) and unidentifiable ones (D$_p$, $t^+$, LAM$_{\mathrm{pos}}$, R$_{\mathrm{mult}}$).
-A Fisher-guided signature selection using only three parameters recovers 99.4\% of the full seven-parameter model accuracy ($R^2 = 0.985$ vs.\ $0.990$), outperforming random subsets by 1.1$\sigma$.
+We present a rigorous Fisher Information analysis of the Doyle--Fuller--Newman (DFN) model under degradation, demonstrating that the voltage response has effective rank $\leq 3$ at threshold $\eta = 10^{-3}$ across two lithium-ion chemistries (LFP and NMC811), implying that at most three of seven degradation parameters can be simultaneously identified from constant-current discharge data.
+Synthetic parameter recovery experiments confirm the Fisher identifiability classification with 6/7 parameter classifications in agreement and an 8.9$\times$ separation in recoverability between identifiable parameters (SEI, D$_n$, LAM$_{\mathrm{neg}}$) and unidentifiable ones (D$_p$, $t^+$, LAM$_{\mathrm{pos}}$, R$_{\mathrm{mult}}$).
+A Fisher-guided signature selection using three parameters captures 98.0\% of the full seven-parameter model accuracy ($R^2 = 0.969$ vs.\ $0.990$), while the data-driven optimal three-parameter set \{SEI, D$_p$, R$_{\mathrm{mult}}$\} achieves $R^2 = 0.985$.
 Validation against the MIT Severson dataset (138 LFP cells) confirms that real-world voltage manifolds are even more degenerate (median effective rank $= 1.22$, with 99.3\% of cells $\leq$ rank 3), indicating that practical degradation is dominated by a single mechanism.
 Profile likelihood analysis with a Gaussian process surrogate ($R^2 = 0.999$) identifies R$_{\mathrm{mult}}$ as the sole structurally unidentifiable parameter, while cross-method disagreement for other parameters reveals that identifiability is method- and chemistry-dependent.
-Multi-rate Fisher analysis gains +1 rank (3$\to$4) in both LFP and LIB chemistries, providing a quantitative justification for multi-C-rate diagnostic protocols.
+Multi-rate Fisher analysis gains +1 rank (3$\to$4) in both chemistries, providing a quantitative justification for multi-C-rate diagnostic protocols.
 These results establish fundamental limits on degradation diagnosis from voltage data and provide a principled framework for model reduction.
 \end{abstract}
 
@@ -321,20 +321,20 @@ The analytical Jacobian analysis classifies the seven degradation parameters int
 
 \begin{table}[htbp]
 \centering
-\caption{Parameter identifiability classification from Fisher Information analysis (LFP, log-standardised). CRLB is the Cram\'er--Rao lower bound on estimation variance.}
+\caption{Parameter identifiability classification from Fisher Information analysis (LFP, log-standardised). CRLB is the Cram\'er--Rao lower bound on estimation variance. Recovery R$^2$ from synthetic KNN experiment ($\sigma = 0$~mV).}
 \label{tab:groups}
-\begin{tabular}{lccc}
+\begin{tabular}{lcccc}
 \toprule
-Parameter & CRLB & Group & $\Delta R^2$ (LOO) \\
+Parameter & CRLB & Group & $\Delta R^2$ (LOO) & Recovery R$^2$ \\
 \midrule
-D$_n$ & finite, tight & ID & 0.0437 \\
-SEI & finite, tight & ID & 0.0021 \\
-LAM$_{\mathrm{neg}}$ & finite, tight & ID & 0.0066 \\
+SEI & finite, tight & ID & 0.0437 & 0.63 \\
+D$_n$ & finite, tight & ID & 0.0021 & 0.26 \\
+LAM$_{\mathrm{neg}}$ & finite, tight & ID & 0.0002 & 0.19 \\
 \midrule
-D$_p$ & infinite & UN & 0.0002 \\
-$t^+$ & infinite & UN & 0.0006 \\
-LAM$_{\mathrm{pos}}$ & infinite & UN & 0.0005 \\
-R$_{\mathrm{mult}}$ & infinite & UN & 0.0023 \\
+D$_p$ & infinite & UN & 0.0066 & $-0.02$ \\
+$t^+$ & infinite & UN & 0.0005 & $-0.01$ \\
+LAM$_{\mathrm{pos}}$ & infinite & UN & 0.0006 & 0.13 \\
+R$_{\mathrm{mult}}$ & infinite & UN & 0.0023 & $-0.005$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -350,8 +350,9 @@ This confirms the Fisher classification with an entirely independent, non-parame
 \subsubsection{Signature Library Ablation}
 
 Figure~\ref{fig:ablation} shows the signature ablation results.
-The Fisher-guided 3-parameter subset \{D$_n$, SEI, LAM$_{\mathrm{neg}}$\} achieves $R^2 = 0.985$, recovering 99.4\% of the full 7-parameter model accuracy ($R^2 = 0.990$).
-Random 3-parameter subsets achieve $R^2 = 0.861 \pm 0.115$, placing the Fisher-guided result 1.1$\sigma$ above the random mean.
+The Fisher-guided 3-parameter subset \{SEI, D$_n$, LAM$_{\mathrm{neg}}$\} achieves $R^2 = 0.969$, recovering 98.0\% of the full 7-parameter model accuracy ($R^2 = 0.990$).
+Random 3-parameter subsets achieve $R^2 = 0.861 \pm 0.115$, placing the Fisher-guided result 0.9$\sigma$ above the random mean.
+The data-driven optimal 3-parameter set is \{SEI, D$_p$, R$_{\mathrm{mult}}$\} ($R^2 = 0.985$), which differs from the Fisher ID group.
 The SVD upper bound at $k = 3$ achieves $R^2 = 0.998$, confirming that 3 dimensions suffice for near-perfect reconstruction.
 
 \begin{figure}[htbp]
@@ -361,11 +362,21 @@ The SVD upper bound at $k = 3$ achieves $R^2 = 0.998$, confirming that 3 dimensi
 \label{fig:ablation}
 \end{figure}
 
-The forward selection order is: D$_n$ ($R^2 = 0.538$) $\to$ LAM$_{\mathrm{neg}}$ ($R^2 = 0.968$) $\to$ R$_{\mathrm{mult}}$ ($R^2 = 0.985$) $\to$ SEI $\to$ LAM$_{\mathrm{pos}} \to t^+ \to$ D$_p$.
-Notably, the first two selected parameters (D$_n$, LAM$_{\mathrm{neg}}$) match the Fisher ID group, providing independent validation.
+The forward selection order is: SEI ($R^2 = 0.538$) $\to$ D$_p$ ($R^2 = 0.968$) $\to$ R$_{\mathrm{mult}}$ ($R^2 = 0.985$) $\to$ D$_n \to t^+ \to$ LAM$_{\mathrm{pos}} \to$ LAM$_{\mathrm{neg}}$.
+The first selected parameter (SEI) matches the Fisher ID group, providing independent validation.
 
-The leave-one-out analysis (Table~\ref{tab:groups}, right column) confirms D$_n$ as the most critical parameter ($\Delta R^2 = 0.044$), followed by LAM$_{\mathrm{neg}}$ ($\Delta R^2 = 0.007$).
-The four Fisher-UN parameters have $\Delta R^2 < 0.003$.
+The leave-one-out analysis (Table~\ref{tab:groups}, right columns) confirms SEI as the most critical parameter ($\Delta R^2 = 0.044$), followed by D$_p$ ($\Delta R^2 = 0.007$).
+The three Fisher-ID parameters contribute a combined $\Delta R^2 = 0.046$, while the four Fisher-UN parameters contribute $\Delta R^2 = 0.010$.
+
+\subsection{Synthetic Parameter Recovery Validates Fisher Classification}
+\label{sec:recovery}
+
+To directly test the Fisher identifiability prediction, we performed synthetic parameter recovery experiments using $k$-nearest-neighbour prediction in voltage space.
+For each test simulation, the $k = 5$ nearest training simulations in $V(t)$ space were identified, and the average of their parameter values was used as the predicted $\hat{\bm{\theta}}$.
+
+The Fisher ID group parameters show consistently lower normalised recovery error (mean $= 0.071$) than the UN group (mean $= 0.188$), yielding a 2.7$\times$ separation ratio at $\sigma = 0$~mV noise.
+Ridge regression from $V \to \theta_j$ gives an 8.9$\times$ separation in R$^2$ between ID (mean $R^2 = 0.36$) and UN (mean $R^2 = 0.02$) groups.
+The classification agrees for 6 of 7 parameters; the sole disagreement is LAM$_{\mathrm{pos}}$, which shows moderate recoverability ($R^2 = 0.13$) despite being classified as UN by Fisher analysis.
 
 \subsection{Profile Likelihood Identifies R$_{\mathrm{mult}}$ as Sole Unidentifiable Parameter}
 \label{sec:pl_results}
@@ -462,7 +473,9 @@ The PyBaMM MLE baseline confirms this: differential evolution converges to ``goo
 This is not an optimisation failure but a structural limitation.
 
 \textbf{Second}, model reduction is not only possible but near-optimal when guided by Fisher Information.
-The Fisher-guided 3-parameter model (D$_n$, SEI, LAM$_{\mathrm{neg}}$) achieves 99.4\% of full model accuracy, and the SVD upper bound at $k = 3$ achieves $R^2 = 0.998$, confirming that the information bottleneck is in the data, not the model.
+The Fisher-guided 3-parameter model (SEI, D$_n$, LAM$_{\mathrm{neg}}$) achieves 98.0\% of full model accuracy.
+However, the data-driven optimal 3-parameter set \{SEI, D$_p$, R$_{\mathrm{mult}}$\} achieves $R^2 = 0.985$, outperforming the Fisher-guided selection.
+This suggests that while Fisher Information correctly identifies the low-rank structure, the specific parameter selection may benefit from data-driven refinement.
 
 \textbf{Third}, multi-rate protocols are the most promising path to improving identifiability.
 The +1 rank gain from joint multi-rate FIM (Table~\ref{tab:multirate}) is the only intervention that increases the intrinsic information content of the measurement.
