@@ -4,24 +4,6 @@
   "n_grid_points": 25,
   "sigma_v": 0.005,
   "summary": {
-    "SEI": {
-      "mean_ci_width": 0.0,
-      "mean_delta_chi2_max": 148899.02554519844,
-      "identifiable_fraction": 1.0,
-      "surrogate_r2": 0.9989132853989997
-    },
-    "LAM_neg": {
-      "mean_ci_width": 0.5833333333333339,
-      "mean_delta_chi2_max": 391.59460241829197,
-      "identifiable_fraction": 1.0,
-      "surrogate_r2": 0.9989132853989997
-    },
-    "LAM_pos": {
-      "mean_ci_width": 0.0,
-      "mean_delta_chi2_max": 148899.02554519844,
-      "identifiable_fraction": 1.0,
-      "surrogate_r2": 0.9989132853989997
-    },
     "D_n": {
       "mean_ci_width": 0.0,
       "mean_delta_chi2_max": 148899.02554519844,
@@ -29,12 +11,30 @@
       "surrogate_r2": 0.9989132853989997
     },
     "D_p": {
+      "mean_ci_width": 0.5833333333333339,
+      "mean_delta_chi2_max": 391.59460241829197,
+      "identifiable_fraction": 1.0,
+      "surrogate_r2": 0.9989132853989997
+    },
+    "t+": {
       "mean_ci_width": 0.0,
       "mean_delta_chi2_max": 148899.02554519844,
       "identifiable_fraction": 1.0,
       "surrogate_r2": 0.9989132853989997
     },
-    "t+": {
+    "SEI": {
+      "mean_ci_width": 0.0,
+      "mean_delta_chi2_max": 148899.02554519844,
+      "identifiable_fraction": 1.0,
+      "surrogate_r2": 0.9989132853989997
+    },
+    "LAM_neg": {
+      "mean_ci_width": 0.0,
+      "mean_delta_chi2_max": 148899.02554519844,
+      "identifiable_fraction": 1.0,
+      "surrogate_r2": 0.9989132853989997
+    },
+    "LAM_pos": {
       "mean_ci_width": 0.0,
       "mean_delta_chi2_max": 148898.99033015905,
       "identifiable_fraction": 1.0,
@@ -59,7 +59,7 @@
         1.773375391960144
       ],
       "profiles": {
-        "SEI": {
+        "D_n": {
           "log_grid": [
             -15.162921921917395,
             -15.037921921917395,
@@ -148,7 +148,7 @@
           "flat_at_95pct": false,
           "identifiable": true
         },
-        "LAM_neg": {
+        "D_p": {
           "log_grid": [
             -16.308526557815004,
             -16.183526557815004,
@@ -237,7 +237,7 @@
           "flat_at_95pct": false,
           "identifiable": true
         },
-        "LAM_pos": {
+        "t+": {
           "log_grid": [
             -1.8563501372098319,
             -1.7313501372098319,
@@ -326,7 +326,7 @@
           "flat_at_95pct": false,
           "identifiable": true
         },
-        "D_n": {
+        "SEI": {
           "log_grid": [
             -7.672170886053396,
             -7.547170886053396,
@@ -415,7 +415,7 @@
           "flat_at_95pct": false,
           "identifiable": true
         },
-        "D_p": {
+        "LAM_neg": {
           "log_grid": [
             -2.361617900354862,
             -2.236617900354862,
@@ -504,7 +504,7 @@
           "flat_at_95pct": false,
           "identifiable": true
         },
-        "t+": {
+        "LAM_pos": {
           "log_grid": [
             -2.0932679586099887,
             -1.9682679586099887,
@@ -695,7 +695,7 @@
         4.874239921569824
       ],
       "profiles": {
-        "SEI": {
+        "D_n": {
           "log_grid": [
             -14.097759725645782,
             -13.972759725645782,
@@ -784,7 +784,7 @@
           "flat_at_95pct": false,
           "identifiable": true
         },
-        "LAM_neg": {
+        "D_p": {
           "log_grid": [
             -17.739993031686303,
             -17.614993031686303,
@@ -873,7 +873,7 @@
           "flat_at_95pct": false,
           "identifiable": true
         },
-        "LAM_pos": {
+        "t+": {
           "log_grid": [
             -2.003683335695257,
             -1.878683335695257,
@@ -962,7 +962,7 @@
           "flat_at_95pct": false,
           "identifiable": true
         },
-        "D_n": {
+        "SEI": {
           "log_grid": [
             -10.428267739360528,
             -10.303267739360528,
@@ -1051,7 +1051,7 @@
           "flat_at_95pct": false,
           "identifiable": true
         },
-        "D_p": {
+        "LAM_neg": {
           "log_grid": [
             -2.29998514424873,
             -2.17498514424873,
@@ -1140,7 +1140,7 @@
           "flat_at_95pct": false,
           "identifiable": true
         },
-        "t+": {
+        "LAM_pos": {
           "log_grid": [
             -2.5814162609426186,
             -2.4564162609426186,
@@ -1331,7 +1331,7 @@
         4.661726474761963
       ],
       "profiles": {
-        "SEI": {
+        "D_n": {
           "log_grid": [
             -16.213491310810074,
             -16.088491310810074,
@@ -1420,7 +1420,7 @@
           "flat_at_95pct": false,
           "identifiable": true
         },
-        "LAM_neg": {
+        "D_p": {
           "log_grid": [
             -16.040131101173564,
             -15.915131101173564,
@@ -1509,7 +1509,7 @@
           "flat_at_95pct": false,
           "identifiable": true
         },
-        "LAM_pos": {
+        "t+": {
           "log_grid": [
             -1.9412447151003276,
             -1.8162447151003276,
@@ -1598,7 +1598,7 @@
           "flat_at_95pct": false,
           "identifiable": true
         },
-        "D_n": {
+        "SEI": {
           "log_grid": [
             -10.085808350242198,
             -9.960808350242198,
@@ -1687,7 +1687,7 @@
           "flat_at_95pct": false,
           "identifiable": true
         },
-        "D_p": {
+        "LAM_neg": {
           "log_grid": [
             -2.0728752938141124,
             -1.9478752938141124,
@@ -1776,7 +1776,7 @@
           "flat_at_95pct": false,
           "identifiable": true
         },
-        "t+": {
+        "LAM_pos": {
           "log_grid": [
             -3.4485318740429225,
             -3.3235318740429225,

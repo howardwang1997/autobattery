@@ -1,11 +1,11 @@
 {
   "param_names": [
-    "SEI",
-    "LAM_neg",
-    "LAM_pos",
     "D_n",
     "D_p",
     "t+",
+    "SEI",
+    "LAM_neg",
+    "LAM_pos",
     "R_mult"
   ],
   "n_simulations": 1200,

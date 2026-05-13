@@ -400,12 +400,12 @@ R$_{\mathrm{mult}}$ shows a flat profile with $\Delta\chi^2_{\max} = 0.86 < 3.84
 \toprule
 Parameter & $\Delta\chi^2_{\max}$ & CI width (dec) & PL verdict & Fisher verdict \\
 \midrule
-SEI & 148{,}899 & 0.0 & ID & ID \\
-LAM$_{\mathrm{neg}}$ & 392 & 0.6 & ID & ID \\
 D$_n$ & 148{,}899 & 0.0 & ID & ID \\
-LAM$_{\mathrm{pos}}$ & 148{,}899 & 0.0 & ID & \textbf{UN} \\
-D$_p$ & 148{,}899 & 0.0 & ID & \textbf{UN} \\
+D$_p$ & 392 & 0.6 & ID & \textbf{UN} \\
 $t^+$ & 148{,}899 & 0.0 & ID & \textbf{UN} \\
+SEI & 148{,}899 & 0.0 & ID & ID \\
+LAM$_{\mathrm{neg}}$ & 148{,}899 & 0.0 & ID & ID \\
+LAM$_{\mathrm{pos}}$ & 148{,}899 & 0.0 & ID & \textbf{UN} \\
 R$_{\mathrm{mult}}$ & 0.86 & 3.0 & \textbf{UN} & UN \\
 \bottomrule
 \end{tabular}
@@ -413,7 +413,7 @@ R$_{\mathrm{mult}}$ & 0.86 & 3.0 & \textbf{UN} & UN \\
 
 The cross-method disagreement is notable (Table~\ref{tab:pl}): Fisher analysis classifies D$_p$, $t^+$, and LAM$_{\mathrm{pos}}$ as unidentifiable, while profile likelihood classifies them as identifiable.
 This discrepancy arises because Fisher Information is a local (linear) measure based on the Jacobian at a single operating point, whereas profile likelihood captures the global (non-linear) structure of the likelihood surface.
-The parameters D$_p$, $t^+$, and LAM$_{\mathrm{pos}}$ have small but non-zero Jacobian entries that accumulate to a detectable signal over the full voltage curve when the model is evaluated at many time points.
+Notably, D$_p$ has a substantially lower $\Delta\chi^2_{\max} = 392$ compared to other identifiable parameters ($\approx 149{,}000$), placing it in a borderline regime where it is identifiable by profile likelihood but not by Fisher analysis at the chosen threshold.
 
 \subsection{Real-World Data Confirms Low-Rank Structure}
 \label{sec:severson_results}

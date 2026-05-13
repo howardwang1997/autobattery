@@ -32,7 +32,7 @@ Inputs
                 ``params`` (n_sim, n_params), and ``c_rates`` (n_sim,).
                 Default: ``data/fullfield/fullfield_lfp_degradation.h5``.
 ``--param-names``  comma list, default
-                   ``"SEI,LAM_neg,LAM_pos,D_n,D_p,t+,R_mult"``.
+                   ``"D_n,D_p,t+,SEI,LAM_neg,LAM_pos,R_mult"``.
 ``--output``   output dir, default ``outputs/rank_robustness``.
 
 Outputs
@@ -301,7 +301,7 @@ def main() -> None:
     parser.add_argument("--data-h5",
                         default="data/fullfield/fullfield_lfp_degradation.h5")
     parser.add_argument("--param-names",
-                        default="SEI,LAM_neg,LAM_pos,D_n,D_p,t+,R_mult")
+                         default="D_n,D_p,t+,SEI,LAM_neg,LAM_pos,R_mult")
     parser.add_argument("--output", default="outputs/rank_robustness")
     parser.add_argument("--bootstrap", type=int, default=DEFAULT_BOOTSTRAP)
     parser.add_argument("--ridge-alpha", type=float, default=DEFAULT_RIDGE_ALPHA)
