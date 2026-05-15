@@ -1,0 +1,131 @@
+{
+  "all_7param": {
+    "r2": 0.3048833238645241,
+    "n_params": 7
+  },
+  "forward_selection": [
+    {
+      "step": 1,
+      "added": "Positive electrode e",
+      "r2": 0.30169900898282975
+    },
+    {
+      "step": 2,
+      "added": "Negative electrode e",
+      "r2": 0.3068084292444505
+    },
+    {
+      "step": 3,
+      "added": "Negative electrode c",
+      "r2": 0.30743493342856043
+    },
+    {
+      "step": 4,
+      "added": "Negative particle di",
+      "r2": 0.30743493342856043
+    },
+    {
+      "step": 5,
+      "added": "Positive particle di",
+      "r2": 0.30743493342856043
+    },
+    {
+      "step": 6,
+      "added": "Positive electrode c",
+      "r2": 0.306277849337117
+    },
+    {
+      "step": 7,
+      "added": "Cation transference ",
+      "r2": 0.3048833238645241
+    }
+  ],
+  "leave_one_out": {
+    "Negative particle di": {
+      "delta_r2": 0.0
+    },
+    "Positive particle di": {
+      "delta_r2": 0.0
+    },
+    "Cation transference ": {
+      "delta_r2": -0.001394525472592889
+    },
+    "Positive electrode c": {
+      "delta_r2": -0.0012720571791511315
+    },
+    "Negative electrode c": {
+      "delta_r2": 0.0006665522940038082
+    },
+    "Positive electrode e": {
+      "delta_r2": 0.016537662937117448
+    },
+    "Negative electrode e": {
+      "delta_r2": 0.006021651767741609
+    }
+  },
+  "subset_sweep": {
+    "k1": {
+      "r2": 0.30169900898282975,
+      "params": [
+        "Positive electrode e"
+      ]
+    },
+    "k2": {
+      "r2": 0.3068084292444505,
+      "params": [
+        "Positive electrode e",
+        "Negative electrode e"
+      ]
+    },
+    "k3": {
+      "r2": 0.30743493342856043,
+      "params": [
+        "Negative electrode c",
+        "Positive electrode e",
+        "Negative electrode e"
+      ]
+    },
+    "k4": {
+      "r2": 0.30743493342856043,
+      "params": [
+        "Negative particle di",
+        "Negative electrode c",
+        "Positive electrode e",
+        "Negative electrode e"
+      ]
+    },
+    "k5": {
+      "r2": 0.30743493342856043,
+      "params": [
+        "Negative particle di",
+        "Positive particle di",
+        "Negative electrode c",
+        "Positive electrode e",
+        "Negative electrode e"
+      ]
+    },
+    "k6": {
+      "r2": 0.306277849337117,
+      "params": [
+        "Negative particle di",
+        "Positive particle di",
+        "Positive electrode c",
+        "Negative electrode c",
+        "Positive electrode e",
+        "Negative electrode e"
+      ]
+    },
+    "k7": {
+      "r2": 0.3048833238645241,
+      "params": [
+        "Negative particle di",
+        "Positive particle di",
+        "Cation transference ",
+        "Positive electrode c",
+        "Negative electrode c",
+        "Positive electrode e",
+        "Negative electrode e"
+      ]
+    }
+  }
+}

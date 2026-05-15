@@ -1,0 +1,165 @@
+{
+  "forward_v_prediction": {
+    "full_7param": {
+      "params": [
+        "D_n",
+        "D_p",
+        "t+",
+        "SEI",
+        "LAM_neg",
+        "LAM_pos",
+        "R_mult"
+      ],
+      "n_params": 7,
+      "v_rmse_mV": 115.71870673768545,
+      "v_r2": 0.7255737354154406,
+      "per_time_rmse_mV": 108.21478490192695
+    },
+    "fisher_id_3param": {
+      "params": [
+        "D_n",
+        "SEI",
+        "LAM_neg"
+      ],
+      "n_params": 3,
+      "v_rmse_mV": 115.54959471658161,
+      "v_r2": 0.726375245741965,
+      "per_time_rmse_mV": 107.89926416366335
+    },
+    "fisher_un_4param": {
+      "params": [
+        "D_p",
+        "t+",
+        "LAM_pos",
+        "R_mult"
+      ],
+      "n_params": 4,
+      "v_rmse_mV": 117.79339538614776,
+      "v_r2": 0.7156452990727091,
+      "per_time_rmse_mV": 109.37812158768422
+    },
+    "top3_datadriven": {
+      "params": [
+        "SEI",
+        "D_p",
+        "R_mult"
+      ],
+      "n_params": 3,
+      "v_rmse_mV": 117.57845971234329,
+      "v_r2": 0.7166820670267322,
+      "per_time_rmse_mV": 109.01079237498607
+    },
+    "random_3param_a": {
+      "params": [
+        "D_n",
+        "t+",
+        "LAM_pos"
+      ],
+      "n_params": 3,
+      "v_rmse_mV": 117.74415943209456,
+      "v_r2": 0.7158829617862195,
+      "per_time_rmse_mV": 109.34961712574966
+    },
+    "random_3param_b": {
+      "params": [
+        "D_p",
+        "LAM_neg",
+        "R_mult"
+      ],
+      "n_params": 3,
+      "v_rmse_mV": 115.54899795845908,
+      "v_r2": 0.7263780720153654,
+      "per_time_rmse_mV": 107.89777786099046
+    }
+  },
+  "inverse_param_recovery": {
+    "full_7param": {
+      "params": [
+        "D_n",
+        "D_p",
+        "t+",
+        "SEI",
+        "LAM_neg",
+        "LAM_pos",
+        "R_mult"
+      ],
+      "mean_r2": 0.168251718453253,
+      "per_param_r2": {
+        "D_n": 0.2645416231160884,
+        "D_p": -0.019695061394638502,
+        "t+": -0.010728308872606451,
+        "SEI": 0.6290423241163337,
+        "LAM_neg": 0.1916087777551716,
+        "LAM_pos": 0.12797622798646568,
+        "R_mult": -0.00498355353404345
+      }
+    },
+    "fisher_id_3param": {
+      "params": [
+        "D_n",
+        "SEI",
+        "LAM_neg"
+      ],
+      "mean_r2": 0.3617309083291979,
+      "per_param_r2": {
+        "D_n": 0.2645416231160884,
+        "SEI": 0.6290423241163337,
+        "LAM_neg": 0.1916087777551716
+      }
+    },
+    "fisher_un_4param": {
+      "params": [
+        "D_p",
+        "t+",
+        "LAM_pos",
+        "R_mult"
+      ],
+      "mean_r2": 0.023142326046293488,
+      "per_param_r2": {
+        "D_p": -0.019695061394638946,
+        "t+": -0.010728308872606451,
+        "LAM_pos": 0.12797622798646235,
+        "R_mult": -0.004983553534043006
+      }
+    },
+    "top3_datadriven": {
+      "params": [
+        "SEI",
+        "D_p",
+        "R_mult"
+      ],
+      "mean_r2": 0.20145456972921724,
+      "per_param_r2": {
+        "SEI": 0.6290423241163337,
+        "D_p": -0.019695061394638502,
+        "R_mult": -0.00498355353404345
+      }
+    },
+    "random_3param_a": {
+      "params": [
+        "D_n",
+        "t+",
+        "LAM_pos"
+      ],
+      "mean_r2": 0.12726318074331588,
+      "per_param_r2": {
+        "D_n": 0.2645416231160884,
+        "t+": -0.010728308872606451,
+        "LAM_pos": 0.12797622798646568
+      }
+    },
+    "random_3param_b": {
+      "params": [
+        "D_p",
+        "LAM_neg",
+        "R_mult"
+      ],
+      "mean_r2": 0.055643387608829885,
+      "per_param_r2": {
+        "D_p": -0.019695061394638502,
+        "LAM_neg": 0.1916087777551716,
+        "R_mult": -0.00498355353404345
+      }
+    }
+  }
+}
