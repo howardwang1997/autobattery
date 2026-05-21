@@ -434,7 +434,7 @@ This result is \emph{more extreme} than the Fisher rank prediction: real LFP deg
 
 \subsubsection{Bayesian Neural Network Prediction}
 
-An MC-Dropout Bayesian neural network achieves $R^2 = 0.968$ for predicting capacity fade percentage from $\Delta V$ features (Table~\ref{tab:bnn}), confirming that voltage evolution strongly encodes degradation state despite the low-rank structure.
+An MC-Dropout Bayesian neural network achieves $R^2 = 0.968$ for predicting capacity fade percentage from $\Delta V$ features (Table~\ref{tab:bnn}, Fig.~\ref{fig:bnn}), confirming that voltage evolution strongly encodes degradation state despite the low-rank structure.
 
 \begin{table}[htbp]
 \centering
@@ -452,6 +452,13 @@ log(cycle life) & V$_{\mathrm{early}}$ & 0.576 & 96.1 \\
 \end{tabular}
 \end{table}
 
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{figures/fig3_bnn.png}
+\caption{BNN prediction on MIT Severson dataset. Left: fade percentage from $\Delta V$ ($R^2 = 0.968$). Right: log(cycle life) from $\Delta V$ ($R^2 = 0.827$). Error bars show MC-Dropout uncertainty.}
+\label{fig:bnn}
+\end{figure}
+
 \subsubsection{Information Map}
 
 The information map $I(V(t_i); \mathrm{fade}\%)$ reveals that late discharge (time indices 57--61 in normalised time) carries the most information about capacity fade, with peak MI $= 0.85$.
@@ -461,38 +468,73 @@ The top 10\% of timepoints carry 15.0\% of total mutual information, indicating 
 \subsection{Physical Origin: Degenerate Parameter Triplet}
 \label{sec:degenerate}
 
-Correlation analysis of the Jacobian columns reveals that SEI, $t^+$, and R$_{\mathrm{mult}}$ produce \emph{nearly identical} voltage changes, with pairwise correlations of 0.999--1.000.
+Correlation analysis of the Jacobian columns (Fig.~\ref{fig:corr}) reveals that SEI, $t^+$, and R$_{\mathrm{mult}}$ produce \emph{nearly identical} voltage changes, with pairwise correlations of 0.999--1.000.
 This degenerate triplet explains the physical origin of the low Fisher rank: these three mechanisms affect the voltage curve in essentially the same way, making them structurally indistinguishable from a single constant-current discharge.
 The remaining four parameters (D$_n$, D$_p$, LAM$_{\mathrm{neg}}$, LAM$_{\mathrm{pos}}$) contribute negligible sensitivity at the median operating point, yielding a Jacobian with effective rank $\approx 1$ from the numerical analysis.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.85\linewidth]{figures/fig9_correlation.png}
+\caption{Jacobian column correlation matrix. SEI, $t^+$, and R$_{\mathrm{mult}}$ form a degenerate triplet with pairwise correlations $> 0.999$. All other parameter pairs are uncorrelated ($|r| \approx 0$), reflecting the block structure of the sensitivity.}
+\label{fig:corr}
+\end{figure}
 
 \subsection{Model Reduction: Unidentifiable Parameters Are Redundant}
 \label{sec:reduction}
 
-A direct test of model reduction confirms that the Fisher-unidentifiable parameters are redundant for voltage prediction.
+A direct test of model reduction confirms that the Fisher-unidentifiable parameters are redundant for voltage prediction (Fig.~\ref{fig:reduction}).
 A Ridge regression model using only the three Fisher-ID parameters \{SEI, D$_n$, LAM$_{\mathrm{neg}}$\} achieves $R^2 = 0.726$ for predicting $V(t)$, which is \emph{identical} to the full 7-parameter model ($R^2 = 0.726$).
 The four Fisher-UN parameters alone achieve $R^2 = 0.716$, indicating they carry some predictive information but are fully captured by the ID parameters in the combined model.
 The data-driven optimal 3-parameter set \{SEI, D$_p$, R$_{\mathrm{mult}}$\} achieves $R^2 = 0.717$, which is actually \emph{lower} than the Fisher-guided set for forward prediction.
 
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.85\linewidth]{figures/fig10_model_reduction.png}
+\caption{Model reduction comparison. Fisher-ID 3-param model achieves identical V(t) prediction ($R^2 = 0.726$) as the full 7-param model, confirming that unidentifiable parameters are redundant for voltage prediction.}
+\label{fig:reduction}
+\end{figure}
+
 \subsection{Noise Robustness of Identifiability Classification}
 \label{sec:noise}
 
-Systematic noise sweep from $\sigma = 0$ to 100~mV shows that the ID/UN separation in recoverability is robust to realistic measurement noise.
+Systematic noise sweep from $\sigma = 0$ to 100~mV shows that the ID/UN separation in recoverability is robust to realistic measurement noise (Fig.~\ref{fig:noise}).
 At $\sigma = 0$~mV, the separation ratio is 15.6$\times$ (ID mean $R^2 = 0.36$, UN mean $R^2 = 0.02$).
 The separation remains above 10$\times$ up to $\sigma = 20$~mV and only collapses at $\sigma = 100$~mV (1.6$\times$), far exceeding typical battery tester noise levels of 1--5~mV.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{figures/fig11_noise.png}
+\caption{Noise robustness of identifiability classification. Left: ID group mean $R^2$ (blue) remains well above UN group (red) across all noise levels. Right: separation ratio stays above 10$\times$ up to $\sigma = 20$~mV, well within typical battery tester precision. Green shading indicates typical noise range.}
+\label{fig:noise}
+\end{figure}
 
 \subsection{Multi-Rate Recovery Validates Rank Gain}
 \label{sec:multirate_recovery}
 
-Concatenating voltage curves from multiple C-rates (0.5C, 1C, 2C) into a single feature vector significantly improves parameter recovery for the Fisher-ID group: SEI recovery improves from $R^2 = 0.63$ to $R^2 = 0.98$, and LAM$_{\mathrm{neg}}$ from $R^2 = 0.19$ to $R^2 = 0.79$.
+Concatenating voltage curves from multiple C-rates (0.5C, 1C, 2C) into a single feature vector significantly improves parameter recovery for the Fisher-ID group (Fig.~\ref{fig:multirate}): SEI recovery improves from $R^2 = 0.63$ to $R^2 = 0.98$, and LAM$_{\mathrm{neg}}$ from $R^2 = 0.19$ to $R^2 = 0.79$.
 The Fisher-ID group gains a mean $\Delta R^2 = +0.29$ from multi-rate data, compared to only $+0.04$ for the UN group.
 This directly validates the Fisher prediction that multi-rate protocols increase the effective rank from 3 to 4.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{figures/fig12_multirate.png}
+\caption{Multi-rate parameter recovery. Blue/red bars indicate Fisher ID/UN classification. Multi-rate concatenation (solid bars) substantially improves recovery for ID parameters (SEI: 0.63 $\to$ 0.98, LAM$_{\mathrm{neg}}$: 0.19 $\to$ 0.79) while UN parameters remain near zero.}
+\label{fig:multirate}
+\end{figure}
 
 \subsection{Cross-Chemistry Validation: LIB Ablation}
 \label{sec:lib_ablation}
 
-The signature ablation experiment on the LIB dataset (1{,}888 simulations, NMC811/graphite chemistry) yields qualitatively different results from LFP.
+The signature ablation experiment on the LIB dataset (1{,}888 simulations, NMC811/graphite chemistry) yields qualitatively different results from LFP (Fig.~\ref{fig:xchem}).
 The most important parameters for LIB are the exchange-current densities (positive and negative electrode), with diffusion coefficients contributing negligibly.
 This confirms that \emph{which} parameters are identifiable is chemistry-dependent, even though the low-rank structure (rank $= 3$ at $\eta = 10^{-3}$) is universal.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{figures/fig13_cross_chemistry.png}
+\caption{Cross-chemistry leave-one-out ablation. Left: LFP parameters coloured by Fisher ID/UN classification (SEI dominates). Right: LIB parameters (exchange-current densities dominate). Despite different chemistry-specific rankings, both datasets exhibit rank $= 3$ at $\eta = 10^{-3}$.}
+\label{fig:xchem}
+\end{figure}
 
 %======================================================================
 \section{Discussion}
