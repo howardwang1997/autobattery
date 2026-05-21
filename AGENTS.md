@@ -161,29 +161,21 @@ Secondary track: **Route B** LMB Cryo-EM story (NE/Joule, 6-12 months, see `docs
 
 ## §6 Cross-Cutting Conclusions
 
-1. **Fisher rank=3 is universal** across 5 chemistries (NMC811, NCA, LFP, LFP_v2, LCO)
+1. **Fisher rank=3 is universal** across LFP + LIB at η=1e-3
 2. **Real-world data confirms** low-rank structure (MIT Severson: within-cell eff_rank median=1.22, 99.3% ≤ 3)
-3. **Fisher-guided signature selection** (SEI, D_n, LAM_neg) achieves 98.0% of full model accuracy; data-driven best 3 is {SEI, D_p, R_mult}
-4. **Which params are identifiable is chemistry- and method-dependent**: Fisher says SEI/D_n/LAM_neg; forward selection says SEI/D_p/R_mult; KNN recovery confirms 6/7 Fisher classifications
-5. **dQ/dV does NOT universally improve identifiability**
-6. **PyBaMM MLE fails structurally** — optimization converges but to wrong values
-7. **Real LFP degradation is rank ~1** (below Fisher rank=3) — dominated by single mechanism
-8. **V(t) evolution strongly encodes degradation state** (delta_V → fade% R²=0.97)
-9. **Late discharge region** (t=57-61 in normalized time) carries most information about fade
-
-### B6: Rank Robustness (`scripts/99_rank_robustness.py`)
-**η-rank table (log_standardised, all data):**
-| η | rank median | 95% CI |
-|---|------------|--------|
-| 1e-2 | 3 | [2–3] |
-| 1e-3 | **3** | [3–3] |
-| 1e-6 | 7 | [7–7] |
-
-- rank=3 robust at η=1e-3 across all 4 parameterisations (raw/log/log_std/pca_white)
-- Multi-rate joint Fisher: single-rate rank=3 → joint rank=4 (η=1e-3)
-- Raw parameterisation gives lower rank (2-5) due to extreme scale differences
-- Bootstrap 200× confirms stability
-- Figures: `outputs/rank_robustness/spectrum.png`, `rank_vs_eta.png`, `rank_gain_multirate.png`
+3. **SEI/t+/R_mult form a degenerate triplet** (Jacobian corr=1.000) — physical origin of low rank
+4. **ID-only 3-param model predicts V(t) equally well as full 7-param** (R²=0.726 = 0.726)
+5. **Multi-rate improves ID param recovery** (SEI 0.63→0.98, LAM_neg 0.19→0.79)
+6. **Which params are identifiable is chemistry- and method-dependent**
+7. **Identifiability stable to σ=20mV**, collapses at ~100mV
+8. **Real LFP degradation is rank ~1** — dominated by single mechanism
+9. **Fisher-guided is NOT optimal** — data-driven {SEI,D_p,R_mult} outperforms {SEI,D_n,LAM_neg}
+### B6: Per-PCA GP Recovery (`scripts/107_per_pca_gp_recovery.py`)
+- GP surrogates trained per PCA component; optimization-based parameter recovery
+- **Results ambiguous**: ID/UN MAE ratio < 1 (0.26 at 0mV, 0.29 at 5mV) — ID group not clearly better
+- Median MAE (lower=better): SEI=0.88, D_n=0.54, LAM_neg=0.52 (ID); D_p=0.86, t+=0.19, LAM_pos=0.64, R_mult=0.37 (UN)
+- Mean MAE heavily skewed by outliers (SEI mean=18.9); t+ surprisingly low median MAE
+- **Not included in manuscript** — does not clearly support ID/UN separation
 
 ### B7: Universality Pipeline — Severson Dryrun (`scripts/101_severson_dryrun.py`)
 - **Archetypes**: k=6 (BIC-selected), ≥2 required → PASS

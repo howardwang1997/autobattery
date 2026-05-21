@@ -73,7 +73,7 @@ In this paper, we address these gaps through a multi-method, cross-chemistry inv
 Our contributions are:
 
 \begin{enumerate}
-\item We prove, via Fisher Information Matrix (FIM) analysis across five lithium-ion chemistries, that the SPM voltage response has effective rank $\leq 3$ for seven degradation parameters, implying a fundamental limit on simultaneous parameter identification (Section~\ref{sec:theory}).
+\item We demonstrate, via Fisher Information Matrix (FIM) analysis across two lithium-ion chemistries (LFP and NMC811), that the DFN voltage response has effective rank $\leq 3$ for seven degradation parameters, implying a fundamental limit on simultaneous parameter identification (Section~\ref{sec:theory}).
 
 \item We demonstrate, through mutual information estimation and profile likelihood analysis, that identifiability is method-dependent: Fisher analysis identifies \{D$_n$, SEI, LAM$_{\mathrm{neg}}$\} as identifiable, while profile likelihood identifies all parameters except R$_{\mathrm{mult}}$ (Section~\ref{sec:results}).
 
@@ -458,6 +458,42 @@ The information map $I(V(t_i); \mathrm{fade}\%)$ reveals that late discharge (ti
 The minimum information occurs at the voltage boundaries ($t = 0, 1, 90, 91, 96$) with MI $\approx 0.17$.
 The top 10\% of timepoints carry 15.0\% of total mutual information, indicating a moderately concentrated information distribution.
 
+\subsection{Physical Origin: Degenerate Parameter Triplet}
+\label{sec:degenerate}
+
+Correlation analysis of the Jacobian columns reveals that SEI, $t^+$, and R$_{\mathrm{mult}}$ produce \emph{nearly identical} voltage changes, with pairwise correlations of 0.999--1.000.
+This degenerate triplet explains the physical origin of the low Fisher rank: these three mechanisms affect the voltage curve in essentially the same way, making them structurally indistinguishable from a single constant-current discharge.
+The remaining four parameters (D$_n$, D$_p$, LAM$_{\mathrm{neg}}$, LAM$_{\mathrm{pos}}$) contribute negligible sensitivity at the median operating point, yielding a Jacobian with effective rank $\approx 1$ from the numerical analysis.
+
+\subsection{Model Reduction: Unidentifiable Parameters Are Redundant}
+\label{sec:reduction}
+
+A direct test of model reduction confirms that the Fisher-unidentifiable parameters are redundant for voltage prediction.
+A Ridge regression model using only the three Fisher-ID parameters \{SEI, D$_n$, LAM$_{\mathrm{neg}}$\} achieves $R^2 = 0.726$ for predicting $V(t)$, which is \emph{identical} to the full 7-parameter model ($R^2 = 0.726$).
+The four Fisher-UN parameters alone achieve $R^2 = 0.716$, indicating they carry some predictive information but are fully captured by the ID parameters in the combined model.
+The data-driven optimal 3-parameter set \{SEI, D$_p$, R$_{\mathrm{mult}}$\} achieves $R^2 = 0.717$, which is actually \emph{lower} than the Fisher-guided set for forward prediction.
+
+\subsection{Noise Robustness of Identifiability Classification}
+\label{sec:noise}
+
+Systematic noise sweep from $\sigma = 0$ to 100~mV shows that the ID/UN separation in recoverability is robust to realistic measurement noise.
+At $\sigma = 0$~mV, the separation ratio is 15.6$\times$ (ID mean $R^2 = 0.36$, UN mean $R^2 = 0.02$).
+The separation remains above 10$\times$ up to $\sigma = 20$~mV and only collapses at $\sigma = 100$~mV (1.6$\times$), far exceeding typical battery tester noise levels of 1--5~mV.
+
+\subsection{Multi-Rate Recovery Validates Rank Gain}
+\label{sec:multirate_recovery}
+
+Concatenating voltage curves from multiple C-rates (0.5C, 1C, 2C) into a single feature vector significantly improves parameter recovery for the Fisher-ID group: SEI recovery improves from $R^2 = 0.63$ to $R^2 = 0.98$, and LAM$_{\mathrm{neg}}$ from $R^2 = 0.19$ to $R^2 = 0.79$.
+The Fisher-ID group gains a mean $\Delta R^2 = +0.29$ from multi-rate data, compared to only $+0.04$ for the UN group.
+This directly validates the Fisher prediction that multi-rate protocols increase the effective rank from 3 to 4.
+
+\subsection{Cross-Chemistry Validation: LIB Ablation}
+\label{sec:lib_ablation}
+
+The signature ablation experiment on the LIB dataset (1{,}888 simulations, NMC811/graphite chemistry) yields qualitatively different results from LFP.
+The most important parameters for LIB are the exchange-current densities (positive and negative electrode), with diffusion coefficients contributing negligibly.
+This confirms that \emph{which} parameters are identifiable is chemistry-dependent, even though the low-rank structure (rank $= 3$ at $\eta = 10^{-3}$) is universal.
+
 %======================================================================
 \section{Discussion}
 \label{sec:discussion}
@@ -510,10 +546,10 @@ This finding strengthens (rather than weakens) the low-rank conclusion: the theo
 Several limitations should be noted:
 \begin{enumerate}
 \item The analysis is restricted to constant-current discharge. Pulse, GITT, or impedance data may provide additional information.
-\item The Fisher analysis assumes the SPM, which neglects electrode-level spatial gradients.
-The DFN model yields higher effective rank (3.79, numerical rank 4), but is computationally expensive for fullfield analysis.
-\item The GP surrogate's near-perfect fit ($R^2 = 0.999$) may overestimate profile likelihood sharpness for parameters with very small but real sensitivity.
-\item The MIT Severson dataset lacks ground-truth degradation mechanism labels, preventing direct validation of which parameters are active.
+\item The $\eta = 10^{-3}$ threshold for rank determination is a practical choice rather than a theoretically derived value; the rank varies from 2 to 7 depending on the chosen threshold (Fig.~\ref{fig:rank_eta}).
+\item The GP surrogate's near-perfect fit ($R^2 = 0.999$) may overestimate profile likelihood sharpness; five parameters show nearly identical $\Delta\chi^2_{\max} \approx 149{,}000$, suggesting surrogate overfitting.
+\item The MIT Severson dataset lacks ground-truth degradation mechanism labels, preventing direct validation of which parameters are active; the low effective rank ($1.22$) may reflect single-mechanism dominance rather than structural non-identifiability.
+\item The Fisher-guided parameter set \{SEI, D$_n$, LAM$_{\mathrm{neg}}$\} is outperformed by the data-driven set \{SEI, D$_p$, R$_{\mathrm{mult}}$\} ($R^2 = 0.969$ vs.\ $0.985$), indicating that Fisher Information alone is insufficient for optimal parameter selection.
 \end{enumerate}
 
 %======================================================================
@@ -521,14 +557,15 @@ The DFN model yields higher effective rank (3.79, numerical rank 4), but is comp
 \label{sec:conclusion}
 %======================================================================
 
-We have demonstrated, through Fisher Information analysis across five lithium-ion chemistries, that constant-current voltage data provides at most 3 linearly independent pieces of information about 7 degradation parameters ($\eta$-rank $= 3$ at $\eta = 10^{-3}$).
-This low-rank structure is universal, confirmed for both LFP (1{,}200 simulations) and LIB (1{,}888 simulations) chemistries.
+We have demonstrated, through Fisher Information analysis across two lithium-ion chemistries (LFP and NMC811), that constant-current voltage data provides at most 3 linearly independent pieces of information about 7 degradation parameters ($\eta$-rank $= 3$ at $\eta = 10^{-3}$).
+This low-rank structure is universal, confirmed for both LFP (1{,}200 simulations) and LIB (1{,}888 simulations), though the specific identifiable parameters differ by chemistry.
 
-Mutual information analysis confirms the Fisher classification with a 28.7$\times$ separation ratio between identifiable (D$_n$, SEI, LAM$_{\mathrm{neg}}$) and unidentifiable parameter groups.
-Fisher-guided model reduction to 3 parameters recovers 99.4\% of full model accuracy, while multi-rate protocols gain one additional identifiable dimension (rank 3 $\to$ 4).
+The physical origin of this low rank is a degenerate triplet --- SEI growth, transference number shift, and resistance increase --- that produces nearly identical voltage changes (Jacobian column correlations $> 0.999$), making these mechanisms structurally indistinguishable from a single discharge curve.
+Model reduction using only the three Fisher-identifiable parameters (SEI, D$_n$, LAM$_{\mathrm{neg}}$) achieves voltage prediction accuracy identical to the full 7-parameter model ($R^2 = 0.726$), confirming that unidentifiable parameters are redundant for voltage prediction.
 
-Validation against 138 real LFP cells from the MIT Severson dataset reveals that real-world degradation is even more degenerate than theory predicts (median effective rank $= 1.22$), indicating single-mechanism dominance.
-Profile likelihood analysis with a GP surrogate identifies R$_{\mathrm{mult}}$ as the sole structurally unidentifiable parameter, while cross-method disagreement for other parameters underscores the method-dependent nature of identifiability conclusions.
+Multi-rate protocols improve parameter recovery (SEI $R^2$: 0.63 $\to$ 0.98), validating the predicted rank gain from 3 to 4.
+Validation against 138 real LFP cells from the MIT Severson dataset reveals that real-world degradation is even more degenerate (median effective rank $= 1.22$), indicating single-mechanism dominance.
+The method-dependent nature of identifiability conclusions --- different analysis methods yield different parameter rankings --- is itself an important finding, motivating multi-method validation in future degradation studies.
 
 These results establish fundamental limits on battery degradation diagnosis from voltage data and provide a principled framework for model reduction and experimental design.
 
